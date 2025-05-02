@@ -39,6 +39,26 @@ export const myServices = createAsyncThunk(
   }
 );
 
+export const getFreelancerOrders = createAsyncThunk(
+  "freelancer/getOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await myAxios.get("/freelancer/orders", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    } catch (e) {
+      if (e.message == "Network Error") {
+        return rejectWithValue("Check The Server");
+      }
+      return rejectWithValue(e.response?.data?.msg || "An error occurred");
+    }
+  }
+);
+
 export const showService = createAsyncThunk(
   "freelancer/showService",
   async (serviceId, { rejectWithValue }) => {
@@ -162,6 +182,13 @@ const freelancerSlice = createSlice({
       state.data = action.payload;
     });
     builder.addCase(deleteService.rejected, (state, action) => {
+      state.error = action.payload;
+    });
+    // Get Freelancer Orders
+    builder.addCase(getFreelancerOrders.fulfilled, (state, action) => {
+      state.data = action.payload;
+    });
+    builder.addCase(getFreelancerOrders.rejected, (state, action) => {
       state.error = action.payload;
     });
   },

@@ -23,7 +23,7 @@ route.get("/dashboard", VerifyToken, async (req, res) => {
     } else if (dashboard == "You Don't Have Permission") {
       return res.json({ status: 403, msg: dashboard });
     } else {
-      return res.json({ status: 200,  dashboard });
+      return res.json({ status: 200, dashboard });
     }
   } catch (error) {
     return res.json({ status: 505, msg: "Error Occured: " + error.message });
@@ -108,6 +108,22 @@ route.post("/order", VerifyToken, async (req, res) => {
       createdService == "You Already Have A Uncompleted Order For This Service"
     ) {
       return res.json({ status: 400, msg: createdService });
+    }
+    if (createdService == "Insufficient Wallet Balance") {
+      // Get current service price for reference
+      const service = await findServiceById(req.body.serviceId);
+      return res.json({
+        status: 402,
+        msg: createdService,
+        servicePrice: service ? service.price : 0,
+      });
+    }
+    if (typeof createdService === "object" && createdService.orderId) {
+      return res.json({
+        status: 200,
+        msg: "Order Made Successfully",
+        orderId: createdService.orderId,
+      });
     }
     return res.json({ status: 200, msg: createdService });
   } catch (error) {

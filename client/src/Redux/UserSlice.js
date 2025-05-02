@@ -16,6 +16,17 @@ export const tokenExists = async (stateToken, navigate, dispatch) => {
     return false;
   }
 };
+
+// Logout User
+export const logoutUser = () => (dispatch) => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userInfo");
+  dispatch(setToken(null));
+  dispatch(setAvatar(""));
+  dispatch(setUserId(null));
+  dispatch(setUserRole(null));
+};
+
 // Register User
 export const signUp = createAsyncThunk(
   "user/register",
@@ -117,6 +128,7 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUserId, setToken, setAvatar, setUserRole } = userSlice.actions;
+export const { setUserId, setToken, setAvatar, setUserRole } =
+  userSlice.actions;
 
 export default userSlice.reducer;

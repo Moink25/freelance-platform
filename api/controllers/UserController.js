@@ -24,7 +24,8 @@ const registerUser = async (
   username,
   password,
   image,
-  role
+  role,
+  wallet
 ) => {
   const allUsers = await findUsers();
   const userExists = allUsers.find(
@@ -42,6 +43,8 @@ const registerUser = async (
       newImage = "no-image.png";
     }
 
+    const walletAmount = wallet ? parseFloat(wallet) : 0;
+
     const createdUser = await User.create({
       fullName,
       age,
@@ -50,6 +53,7 @@ const registerUser = async (
       password: newPassword,
       role,
       image: newImage,
+      wallet: walletAmount,
     });
     return createdUser;
   }
@@ -78,7 +82,8 @@ const updateUser = async (
   age,
   username,
   image,
-  imageFile
+  imageFile,
+  wallet
 ) => {
   const selectedUser = await findUserById(userId);
   if (selectedUser) {
@@ -96,15 +101,20 @@ const updateUser = async (
       }
       newImage = imageFile;
     }
-    const updatedUser = User.updateOne(
-      { _id: selectedUser._id },
-      {
-        fullName,
-        age,
-        username,
-        image: newImage,
-      }
-    );
+
+    const updateData = {
+      fullName,
+      age,
+      username,
+      image: newImage,
+    };
+
+    // Only update wallet if provided
+    if (wallet !== undefined) {
+      updateData.wallet = parseFloat(wallet);
+    }
+
+    const updatedUser = User.updateOne({ _id: selectedUser._id }, updateData);
     return updatedUser;
   } else {
     return null;

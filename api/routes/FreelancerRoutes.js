@@ -7,6 +7,7 @@ const {
   deleteService,
   updateService,
 } = require("../controllers/ServicesController");
+const { findFreelancerOrders } = require("../controllers/OrdersController");
 const VerifyToken = require("../middleware/Auth");
 const { createServiceUpload } = require("../middleware/uploadImage");
 const route = express.Router();
@@ -138,6 +139,24 @@ route.delete("/service/:idService", VerifyToken, async (req, res) => {
     return res.json({ status: 404, msg: "User Doesn't exists" });
   } catch (error) {
     return res.json({ status: 505, msg: "Error Occured: " + error.message });
+  }
+});
+
+route.get("/orders", VerifyToken, async (req, res) => {
+  try {
+    const freelancerOrders = await findFreelancerOrders(req.userId);
+
+    if (typeof freelancerOrders === "string") {
+      if (freelancerOrders === "You Don't Have Permission") {
+        return res.json({ status: 403, msg: freelancerOrders });
+      } else {
+        return res.json({ status: 404, msg: freelancerOrders });
+      }
+    }
+
+    return res.json(freelancerOrders);
+  } catch (error) {
+    return res.json({ status: 505, msg: "Error Occurred: " + error.message });
   }
 });
 

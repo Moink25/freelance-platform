@@ -164,6 +164,39 @@ export const makeTestimonial = createAsyncThunk(
     }
   }
 );
+
+export const orderService = createAsyncThunk(
+  "client/orderService",
+  async ({ serviceId }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await myAxios.post(
+        `/client/order`,
+        { serviceId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // If insufficient wallet balance, the API will return status 402
+      // Include the orderId if returned from the API
+      if (res.data.orderId) {
+        return {
+          ...res.data,
+          orderId: res.data.orderId
+        };
+      }
+      return res.data;
+    } catch (e) {
+      if (e.message == "Network Error") {
+        return rejectWithValue("Check The Server");
+      }
+      return rejectWithValue(e.response?.data?.msg || "An error occurred");
+    }
+  }
+);
+
 const clientSlice = createSlice({
   name: "client",
   initialState: {
@@ -225,6 +258,13 @@ const clientSlice = createSlice({
       state.data = action.payload;
     });
     builder.addCase(makeTestimonial.rejected, (state, action) => {
+      state.error = action.payload;
+    });
+    // Order Service
+    builder.addCase(orderService.fulfilled, (state, action) => {
+      state.data = action.payload;
+    });
+    builder.addCase(orderService.rejected, (state, action) => {
       state.error = action.payload;
     });
   },

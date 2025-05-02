@@ -10,6 +10,8 @@ const UserModel = new Schema(
     password: String,
     role: String,
     image: { type: String, default: null },
+    wallet: { type: Number, default: 0 },
+    razorpayAccount: { type: String, default: null },
   },
   { timestamps: true }
 );

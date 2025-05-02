@@ -13,11 +13,14 @@ import FreelancerServices from "./components/FreelancerComponents/FreelancerServ
 import FreelancerCreateService from "./components/FreelancerComponents/FreelancerCreateService";
 import FreelancerManageServices from "./components/FreelancerComponents/FreelancerManageServices";
 import FreelancerUpdateService from "./components/FreelancerComponents/FreelancerUpdateService";
+import FreelancerWallet from "./components/FreelancerComponents/FreelancerWallet";
+import FreelancerOrders from "./components/FreelancerComponents/FreelancerOrders";
 import ServiceDetails from "./components/ServiceDetails";
 
 import ClientDashboard from "./components/ClientComponents/ClientDashboard";
 import ClientFreelancers from "./components/ClientComponents/ClientFreelancers";
 import ClientOrders from "./components/ClientComponents/ClientOrders";
+import ClientWallet from "./components/ClientComponents/ClientWallet";
 
 function App() {
   return (
@@ -50,8 +53,16 @@ function App() {
               />
             </Route>
             <Route
+              path="/dashboard/freelancer/:id/orders"
+              element={<FreelancerOrders />}
+            />
+            <Route
               path="/dashboard/freelancer/:id/chat"
               element={<Chat type="freelancer" />}
+            />
+            <Route
+              path="/dashboard/freelancer/:id/wallet"
+              element={<FreelancerWallet />}
             />
             <Route
               path="/dashboard/freelancer/:id/profile"
@@ -61,7 +72,7 @@ function App() {
           <Route path="/dashboard/client/:id">
             <Route index element={<ClientDashboard />} />
             <Route
-              path="/dashboard/client/:id/services"
+              path="/dashboard/client/:id/freelancers"
               element={<ClientFreelancers />}
             />
             <Route
@@ -78,7 +89,11 @@ function App() {
             />
             <Route
               path="/dashboard/client/:id/chat"
-              element={<Chat type="2" />}
+              element={<Chat type="client" />}
+            />
+            <Route
+              path="/dashboard/client/:id/wallet"
+              element={<ClientWallet />}
             />
             <Route
               path="/dashboard/client/:id/profile"

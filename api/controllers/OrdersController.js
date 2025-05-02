@@ -3,6 +3,10 @@ const { getServiceRating } = require("./TestimonialsController");
 const { findServiceById } = require("./ServicesController");
 const { findUserById } = require("./UserController");
 const { sendMessage } = require("./ChatController");
+const Service = require("../models/serviceModel");
+const User = require("../models/UserModel");
+const TransactionModel = require("../models/transactionModel");
+const mongoose = require("mongoose");
 
 const findOrder = async (orderId) => {
   const selectedOrder = Order.findById(orderId);
@@ -83,13 +87,63 @@ const makeOrder = async (clientId, serviceId) => {
       if (orderExists.length != 0) {
         return "You Already Have A Uncompleted Order For This Service";
       }
-      const text = `Hello,I would like to order ${selectedService.title} service`;
-      sendMessage(clientId, selectedService.userId, text);
-      const createdOrder = Order.create({
-        clientId: selectedClient._id,
-        serviceId: selectedService._id,
-      });
-      return "Order Made Successfully";
+
+      // Check client's wallet balance
+      if (selectedClient.wallet < selectedService.price) {
+        return "Insufficient Wallet Balance";
+      }
+
+      // Create the order
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      try {
+        // Create the order first
+        const order = new Order({
+          clientId: selectedClient._id,
+          serviceId: selectedService._id,
+          amount: selectedService.price,
+          paymentStatus: "completed", // Auto-mark as completed since payment is processed immediately
+        });
+
+        await order.save({ session });
+
+        // Create a transaction record
+        const transaction = new TransactionModel({
+          userId: clientId,
+          amount: selectedService.price,
+          type: "payment",
+          status: "completed",
+          orderId: order._id,
+          description: `Payment for order #${order._id} - ${selectedService.title}`,
+        });
+
+        await transaction.save({ session });
+
+        // Update the order with transaction ID
+        order.transactionId = transaction._id;
+        await order.save({ session });
+
+        // Deduct amount from client's wallet
+        selectedClient.wallet -= selectedService.price;
+        await selectedClient.save({ session });
+
+        // Send a message to the freelancer
+        const text = `Hello, I would like to order ${selectedService.title} service`;
+        await sendMessage(clientId, selectedService.userId, text);
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return {
+          message: "Order Made Successfully",
+          orderId: order._id,
+        };
+      } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
+      }
     }
     return "Service Doesn't Exists";
   }
@@ -110,17 +164,135 @@ const updateOrder = async (clientId, orderId, orderState) => {
       if (orderState != "Completed" && orderState != "Cancelled") {
         return "Order Status Unrecognized";
       }
-      const updatedOrder = Order.updateOne(
-        { clientId, _id: orderId, status: "OnGoing" },
-        {
-          status: orderState,
+
+      if (orderState === "Completed") {
+        // Transfer money to freelancer when order is completed
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        try {
+          // Get the service and freelancer information
+          const service = await Service.findById(selectedOrder.serviceId);
+          if (!service) {
+            await session.abortTransaction();
+            session.endSession();
+            return "Service not found";
+          }
+
+          const freelancer = await User.findById(service.userId);
+          if (!freelancer) {
+            await session.abortTransaction();
+            session.endSession();
+            return "Freelancer not found";
+          }
+
+          // Create an earnings transaction for the freelancer
+          const freelancerTransaction = new TransactionModel({
+            userId: freelancer._id,
+            amount: selectedOrder.amount,
+            type: "earnings",
+            status: "completed",
+            orderId: selectedOrder._id,
+            description: `Earnings from order #${selectedOrder._id}`,
+          });
+
+          await freelancerTransaction.save({ session });
+
+          // Update freelancer's wallet balance
+          freelancer.wallet += selectedOrder.amount;
+          await freelancer.save({ session });
+
+          // Update order status
+          const updatedOrder = await Order.updateOne(
+            { clientId, _id: orderId, status: "OnGoing" },
+            {
+              status: orderState,
+            },
+            { session }
+          );
+
+          await session.commitTransaction();
+          session.endSession();
+
+          return updatedOrder;
+        } catch (error) {
+          await session.abortTransaction();
+          session.endSession();
+          throw error;
         }
-      );
-      return updatedOrder;
+      } else {
+        // If cancelled, just update the status
+        const updatedOrder = await Order.updateOne(
+          { clientId, _id: orderId, status: "OnGoing" },
+          {
+            status: orderState,
+          }
+        );
+        return updatedOrder;
+      }
     }
     return "Order doesn't exists";
   }
   return "User doesn't exists";
+};
+
+const findFreelancerOrders = async (freelancerId) => {
+  const selectedFreelancer = await findUserById(freelancerId);
+  if (selectedFreelancer) {
+    if (selectedFreelancer.role !== "freelancer") {
+      return "You Don't Have Permission";
+    }
+
+    // Find services created by this freelancer
+    const freelancerServices = await Service.find({ userId: freelancerId });
+
+    if (freelancerServices.length === 0) {
+      return {
+        status: 200,
+        msg: "Success",
+        freelancerOrders: [],
+      };
+    }
+
+    // Get service IDs
+    const serviceIds = freelancerServices.map((service) => service._id);
+
+    // Find orders for these services
+    const orders = await Order.find({ serviceId: { $in: serviceIds } });
+
+    // Format the orders with details
+    const formattedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const serviceInfo = await findServiceById(order.serviceId.toString());
+        const serviceRating = await getServiceRating(
+          order.serviceId.toString()
+        );
+        const clientInfo = await findUserById(order.clientId);
+
+        return {
+          _id: order._id,
+          serviceInfo,
+          serviceRating,
+          clientInfo: {
+            _id: clientInfo._id,
+            username: clientInfo.username,
+            profileImg: clientInfo.profileImg,
+          },
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+          createdAt: order.createdAt,
+        };
+      })
+    );
+
+    return {
+      status: 200,
+      msg: "Success",
+      freelancerOrders: formattedOrders,
+    };
+  }
+
+  return "User Doesn't Exist";
 };
 
 module.exports = {
@@ -129,4 +301,5 @@ module.exports = {
   makeOrder,
   updateOrder,
   findOrder,
+  findFreelancerOrders,
 };

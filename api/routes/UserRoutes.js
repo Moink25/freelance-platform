@@ -14,7 +14,7 @@ const {
 
 route.post("/register", createProfileUploadImage, async (req, res) => {
   const image = req.file && req.file.filename;
-  const { fullName, age, email, username, password, role } = req.body;
+  const { fullName, age, email, username, password, role, wallet } = req.body;
   try {
     const createdUser = await registerUser(
       fullName,
@@ -23,7 +23,8 @@ route.post("/register", createProfileUploadImage, async (req, res) => {
       username,
       password,
       image,
-      role
+      role,
+      wallet
     );
     if (createdUser) {
       return res.json({ msg: "User Created Successfully", status: 200 });
@@ -62,14 +63,15 @@ route.put(
   updateProfileUploadImage,
   async (req, res) => {
     const imageFile = req.file && req.file.filename;
-    const { fullName, age, username, image } = req.body;
+    const { fullName, age, username, image, wallet } = req.body;
     const updatedUser = await updateUser(
       req.userId,
       fullName,
       age,
       username,
       image,
-      imageFile
+      imageFile,
+      wallet
     );
     const updatedUserInfo = await findUserById(req.userId);
     try {

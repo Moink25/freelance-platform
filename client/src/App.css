@@ -935,50 +935,58 @@ nav button a {
 /* Start Dahsboard Freelancer Home*/
 .FreelancerDashboard .section {
   min-height: calc(100vh - 173px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
 }
+
 .FreelancerDashboard .header {
-  font-size: 40px;
-  margin-top: 20px;
+  font-size: 2rem;
+  color: var(--color-orange);
+  margin-bottom: 1.5rem;
+  font-weight: bold;
+  text-align: center;
 }
+
 .FreelancerDashboard .stats {
-  margin-top: 31px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  justify-content: space-between;
-}
-.FreelancerDashboard .serverStopped {
-  color: var(--color-orange);
-  font-size: 50px;
-  text-align: center;
-  font-weight: 700;
-  height: 78vh;
-  display: flex;
+  gap: 20px;
   justify-content: center;
-  align-items: center;
-  width: 100%;
 }
+
 .FreelancerDashboard .stats .card {
-  padding: 39px 20px;
-  width: calc(1320px / 5);
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  box-shadow: rgba(21, 34, 50, 0.26) 10px 10px 20px;
-  border-radius: 10px;
+  padding: 20px;
+  width: 250px;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
+
+.FreelancerDashboard .stats .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
 .FreelancerDashboard .stats .card .info {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
+
 .FreelancerDashboard .stats .card .info .title {
   font-size: 16px;
   color: var(--color-grey);
 }
+
 .FreelancerDashboard .stats .card .info .body-stat {
   font-size: 28px;
 }
+
 .FreelancerDashboard .stats .card .logo {
   width: 62px;
   height: 62px;
@@ -988,6 +996,7 @@ nav button a {
   align-items: center;
   justify-content: center;
 }
+
 @media (max-width: 1400px) {
   .FreelancerDashboard .stats {
     gap: 60px;
@@ -1146,39 +1155,35 @@ nav button a {
   border-radius: 10px;
 }
 .FreelancerServices .services {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  align-items: center;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 2rem;
 }
 .FreelancerServices .services a {
   text-decoration: none;
   color: black;
 }
 .FreelancerServices .noServices {
-  color: var(--color-orange);
-  font-size: 50px;
+  grid-column: 1 / -1;
   text-align: center;
-  font-weight: 700;
-  height: 270px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+  padding: 3rem;
+  font-size: 1.5rem;
+  color: var(--color-orange);
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .FreelancerServices .services .service {
-  width: 294px;
-  display: flex;
-  flex-direction: column;
-  background-color: white;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: rgba(21, 34, 50, 0.26) 10px 10px 20px;
-  transition: 0.7s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  background-color: white;
 }
 .FreelancerServices .services .service:hover {
-  transform: translateY(-10px);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 .FreelancerServices .services .service .slider img {
   width: 100%;
@@ -1413,58 +1418,47 @@ nav button a {
 .FreelancerManageServices table {
   width: 100%;
   border-collapse: collapse;
-  overflow-y: auto;
+  margin-top: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.FreelancerManageServices table thead {
+  background-color: var(--color-orange);
+  color: white;
 }
 .FreelancerManageServices table td {
-  width: 25%;
-  padding: 17px 25px;
-}
-.FreelancerManageServices table tr {
-  border-bottom: 1px solid var(--color-grey);
-}
-.FreelancerManageServices table thead td {
-  font-size: 30px;
-}
-.FreelancerManageServices .noServices {
-  color: var(--color-orange);
-  font-size: 50px;
+  padding: 15px;
   text-align: center;
-  font-weight: 700;
-  height: 270px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
 }
-.FreelancerManageServices table tbody td {
-  font-size: 18px;
+.FreelancerManageServices table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.3s;
 }
-.FreelancerManageServices table tbody td:last-of-type {
-  width: fit-content;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
+.FreelancerManageServices table tbody tr:hover {
+  background-color: #f8f9fa;
 }
 .FreelancerManageServices table tbody td button {
-  padding: 13px 33px;
-  color: white;
-  cursor: pointer;
-  outline: none;
-  font-size: 18px;
+  margin: 0 5px;
+  padding: 8px 15px;
+  border-radius: 5px;
   border: none;
-  min-width: 123px;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
-.FreelancerManageServices table tbody td a {
-  text-decoration: none;
+.FreelancerManageServices table tbody td button:first-child {
+  background-color: #007bff;
+  color: white;
 }
-.FreelancerManageServices table tbody td a:first-of-type button {
-  background-color: var(--color-green);
+.FreelancerManageServices table tbody td button:last-child {
+  background-color: #dc3545;
+  color: white;
 }
-.FreelancerManageServices table tbody td button:last-of-type {
-  background-color: var(--color-red);
+.FreelancerManageServices table tbody td button:first-child:hover {
+  background-color: #0056b3;
+}
+.FreelancerManageServices table tbody td button:last-child:hover {
+  background-color: #c82333;
 }
 @media (max-width: 550px) {
   .FreelancerManageServices table {
@@ -2290,56 +2284,58 @@ nav button a {
 /* Start Client Dashboard */
 .ClientDashboard .section {
   min-height: calc(100vh - 173px);
-}
-.ClientDashboard .header {
-  font-size: 40px;
-  margin-top: 20px;
-}
-.ClientDashboard .swiper-button-next:after,
-.ClientDashboard .swiper-button-prev:after {
-  color: white;
-}
-.ClientDashboard .swiper-pagination-clickable .swiper-pagination-bullet {
-  background-color: white;
-}
-.ClientDashboard .swiper-slide {
-  width: 80%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  gap: 20px;
+  padding: 20px;
 }
-.ClientDashboard .swiper-wrapper {
-  align-items: center;
+
+.ClientDashboard .header {
+  font-size: 2rem;
+  color: var(--color-orange);
+  margin-bottom: 1.5rem;
+  font-weight: bold;
+  text-align: center;
 }
+
 .ClientDashboard .stats {
-  margin-top: 31px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  justify-content: space-evenly;
+  gap: 20px;
+  justify-content: center;
 }
+
 .ClientDashboard .stats .card {
-  padding: 39px 20px;
-  width: 370px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  box-shadow: rgba(21, 34, 50, 0.26) 10px 10px 20px;
-  border-radius: 10px;
+  padding: 20px;
+  width: 250px;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
+
+.ClientDashboard .stats .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
 .ClientDashboard .stats .card .info {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
+
 .ClientDashboard .stats .card .info .title {
   font-size: 16px;
   color: var(--color-grey);
 }
+
 .ClientDashboard .stats .card .info .body-stat {
   font-size: 28px;
 }
+
 .ClientDashboard .stats .card .logo {
   width: 62px;
   height: 62px;
@@ -2349,6 +2345,7 @@ nav button a {
   align-items: center;
   justify-content: center;
 }
+
 @media (max-width: 1400px) {
   .ClientDashboard .stats {
     gap: 60px;
@@ -2487,24 +2484,25 @@ nav button a {
   text-align: center;
 }
 .ClientServices .services {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  align-items: center;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 2rem;
 }
 .ClientServices .services a {
   text-decoration: none;
   color: black;
 }
 .ClientServices .services .service {
-  width: 294px;
-  display: flex;
-  flex-direction: column;
-  background-color: white;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: rgba(21, 34, 50, 0.26) 10px 10px 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  background-color: white;
+}
+.ClientServices .services .service:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 .ClientServices .services .service img {
   cursor: grab;
@@ -2817,3 +2815,407 @@ nav button a {
   }
 }
 /* End ClientOrders Section */
+
+/* Wallet Styles */
+.ClientWallet, .FreelancerWallet {
+  min-height: 100vh;
+  padding: 120px 0 50px;
+  background-color: #f5f5f5;
+}
+
+.wallet-header {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: var(--color-dark);
+  text-align: center;
+}
+
+.wallet-balance {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.balance-title {
+  font-size: 1.2rem;
+  color: var(--color-dark);
+  margin-bottom: 10px;
+}
+
+.balance-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-orange);
+}
+
+.wallet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.add-money-form, .withdraw-form, .account-form {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.add-money-form h3, .withdraw-form h3, .account-form h3 {
+  font-size: 1.2rem;
+  color: var(--color-dark);
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  gap: 10px;
+}
+
+.form-group input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.form-group button {
+  padding: 10px 20px;
+  background-color: var(--color-orange);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.form-group button:hover {
+  background-color: var(--color-dark);
+}
+
+.form-group button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.wallet-transactions {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-transactions h3 {
+  font-size: 1.2rem;
+  color: var(--color-dark);
+  margin-bottom: 15px;
+}
+
+.transaction-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.transaction-type {
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.transaction-date {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.transaction-amount {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.transaction-status {
+  font-size: 0.9rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background-color: #eee;
+}
+
+.transaction-item.deposit .transaction-amount, 
+.transaction-item.earnings .transaction-amount {
+  color: green;
+}
+
+.transaction-item.withdrawal .transaction-amount, 
+.transaction-item.payment .transaction-amount {
+  color: var(--color-orange);
+}
+
+.no-transactions {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+@media (min-width: 768px) {
+  .wallet-actions {
+    flex-direction: row;
+  }
+
+  .add-money-form, .withdraw-form, .account-form {
+    flex: 1;
+  }
+}
+
+/* Payment Options Overlay Styles */
+.payment-options-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.payment-options-dialog {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.payment-options-dialog h3 {
+  font-size: 1.5rem;
+  color: var(--color-dark);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.payment-options-dialog p {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  color: var(--color-dark);
+}
+
+.payment-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.payment-buttons button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.payment-buttons button:first-child {
+  background-color: var(--color-orange);
+  color: white;
+}
+
+.payment-buttons button:nth-child(2) {
+  background-color: var(--color-dark);
+  color: white;
+}
+
+.payment-buttons .cancel-btn {
+  background-color: #eee;
+  color: var(--color-dark);
+}
+
+.payment-buttons button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.payment-buttons button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.insufficient-balance {
+  color: red !important;
+  font-size: 0.9rem !important;
+  text-align: center;
+  font-style: italic;
+}
+
+@media (min-width: 768px) {
+  .payment-buttons {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .payment-buttons button {
+    flex: 1;
+  }
+}
+
+/* Add this to the appropriate section of the CSS file */
+
+/* Service Management Styles */
+.service-management-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.service-management-header h2 {
+  font-size: 2rem;
+  color: var(--color-orange);
+  margin-bottom: 0.5rem;
+}
+
+.service-management-header p {
+  font-size: 1rem;
+  color: #666;
+}
+
+.service-management-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.create-service-btn, .manage-service-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem !important;
+  font-size: 1rem !important;
+  font-weight: 600;
+  border-radius: 8px !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.create-service-btn {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.create-service-btn:hover {
+  background-color: #0056b3 !important;
+  transform: translateY(-2px);
+}
+
+.manage-service-btn {
+  background-color: #f8f9fa !important;
+  color: #333 !important;
+  border: 1px solid #ccc !important;
+}
+
+.manage-service-btn:hover {
+  background-color: #e9ecef !important;
+  transform: translateY(-2px);
+}
+
+.plus-icon, .manage-icon {
+  font-style: normal;
+  font-size: 1.2rem;
+}
+
+/* Dashboard Menu Styling */
+.menu {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.menu li:hover {
+  background-color: rgba(254, 171, 94, 0.1);
+  color: var(--color-orange);
+}
+
+.menu li.active {
+  background-color: var(--color-orange);
+  color: white;
+}
+
+.menu li.active .navIcons {
+  color: white;
+}
+
+.menu .navIcons {
+  font-size: 1.5rem;
+  color: var(--color-orange);
+}
+
+.menu a {
+  text-decoration: none;
+  color: inherit;
+}
+
+@media (max-width: 768px) {
+  .menu ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .menu li {
+    padding: 10px 15px;
+  }
+  
+  .menu li span {
+    display: none;
+  }
+  
+  .menu .navIcons {
+    font-size: 1.8rem;
+  }
+}
