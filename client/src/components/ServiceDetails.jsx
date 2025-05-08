@@ -20,6 +20,7 @@ import noImage from "../../src/assets/Images/no-image.png";
 import ClientMenu from "./ClientComponents/ClientMenu";
 import Loading from "./Loading";
 import axios from "axios";
+import ContractDetails from "./ClientComponents/ContractDetails";
 
 export default function ServiceDetails({ type }) {
   const { id, serviceId } = useParams();
@@ -566,6 +567,10 @@ export default function ServiceDetails({ type }) {
                       />
                     </div>
                   </div>
+
+                  {/* Contract Details Component */}
+                  <ContractDetails orderId={serviceId} />
+
                   {data.clientOrderInfo.status == "OnGoing" ? (
                     <div className="bottom-buttons">
                       <HashLink

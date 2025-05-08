@@ -12,6 +12,7 @@ const UserModel = new Schema(
     image: { type: String, default: null },
     wallet: { type: Number, default: 0 },
     razorpayAccount: { type: String, default: null },
+    ethereumAddress: { type: String, default: null },
   },
   { timestamps: true }
 );

@@ -5,8 +5,20 @@ const Testimonial = require("../models/testimonialModel");
 const { getServiceRating } = require("./TestimonialsController");
 
 const freelancerDashboard = async (userId) => {
-  const selectedFreelancer = await User.findById(userId);
-  if (selectedFreelancer) {
+  console.log("freelancerDashboard called with userId:", userId);
+
+  if (!userId) {
+    console.error("No userId provided to freelancerDashboard");
+    return "User doesn't exist";
+  }
+
+  try {
+    const selectedFreelancer = await User.findById(userId);
+    if (!selectedFreelancer) {
+      console.error(`User with ID ${userId} not found`);
+      return "User doesn't exist";
+    }
+
     if (selectedFreelancer.role != "freelancer") {
       return "You Don't Have Permission";
     }
@@ -21,6 +33,8 @@ const freelancerDashboard = async (userId) => {
       for (let i of allOrders) {
         const selectedService = await Service.findById(i.serviceId);
         if (
+          selectedService &&
+          selectedService.userId &&
           selectedService.userId.toString() == selectedFreelancer._id.toString()
         ) {
           ordersNumber++;
@@ -31,6 +45,8 @@ const freelancerDashboard = async (userId) => {
       for (let i of orders) {
         const selectedService = await Service.findById(i.serviceId);
         if (
+          selectedService &&
+          selectedService.userId &&
           selectedService.userId.toString() == selectedFreelancer._id.toString()
         ) {
           completedOrders++;
@@ -100,8 +116,10 @@ const freelancerDashboard = async (userId) => {
       rating: freelancerRating,
       testimonials: freelancerTestimonials,
     };
+  } catch (error) {
+    console.error("Error in freelancerDashboard:", error);
+    return "User doesn't exist";
   }
-  return "User doesn't exist";
 };
 
 const clientDashboard = async (userId) => {

@@ -6,6 +6,7 @@ const {
   findUserById,
   updateUser,
   loginUser,
+  updateEthereumAddress,
 } = require("../controllers/UserController");
 const {
   createProfileUploadImage,
@@ -89,5 +90,16 @@ route.put(
     }
   }
 );
+
+route.post("/update-ethereum-address", VerifyToken, async (req, res) => {
+  try {
+    await updateEthereumAddress(req, res);
+  } catch (err) {
+    return res.status(500).json({ 
+      success: false,
+      message: "Error updating Ethereum address: " + err.message 
+    });
+  }
+});
 
 module.exports = route;

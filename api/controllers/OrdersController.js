@@ -135,6 +135,18 @@ const makeOrder = async (clientId, serviceId) => {
         await session.commitTransaction();
         session.endSession();
 
+        // Create blockchain contract for this order
+        try {
+          const ContractController = require("./ContractController");
+          await ContractController.createBlockchainContract(
+            order._id.toString()
+          );
+        } catch (contractError) {
+          console.error("Error creating blockchain contract:", contractError);
+          // We won't fail the order creation if contract creation fails
+          // In production, you might want to handle this differently
+        }
+
         return {
           message: "Order Made Successfully",
           orderId: order._id,
@@ -214,6 +226,18 @@ const updateOrder = async (clientId, orderId, orderState) => {
           await session.commitTransaction();
           session.endSession();
 
+          // Complete the blockchain contract
+          try {
+            const ContractController = require("./ContractController");
+            await ContractController.completeContract(orderId, clientId);
+          } catch (contractError) {
+            console.error(
+              "Error completing blockchain contract:",
+              contractError
+            );
+            // We won't fail the order completion if contract update fails
+          }
+
           return updatedOrder;
         } catch (error) {
           await session.abortTransaction();
@@ -228,6 +252,20 @@ const updateOrder = async (clientId, orderId, orderState) => {
             status: orderState,
           }
         );
+
+        // Cancel the blockchain contract
+        try {
+          const ContractController = require("./ContractController");
+          await ContractController.cancelContract(
+            orderId,
+            clientId,
+            "Order cancelled by client"
+          );
+        } catch (contractError) {
+          console.error("Error cancelling blockchain contract:", contractError);
+          // We won't fail the order cancellation if contract update fails
+        }
+
         return updatedOrder;
       }
     }

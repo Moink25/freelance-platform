@@ -15,14 +15,18 @@ import FreelancerManageServices from "./components/FreelancerComponents/Freelanc
 import FreelancerUpdateService from "./components/FreelancerComponents/FreelancerUpdateService";
 import FreelancerWallet from "./components/FreelancerComponents/FreelancerWallet";
 import FreelancerOrders from "./components/FreelancerComponents/FreelancerOrders";
+import FreelancerOrderDetails from "./components/FreelancerComponents/FreelancerOrderDetails";
+import FreelancerContracts from "./components/FreelancerComponents/FreelancerContracts";
 import ServiceDetails from "./components/ServiceDetails";
 
 import ClientDashboard from "./components/ClientComponents/ClientDashboard";
 import ClientFreelancers from "./components/ClientComponents/ClientFreelancers";
 import ClientOrders from "./components/ClientComponents/ClientOrders";
 import ClientWallet from "./components/ClientComponents/ClientWallet";
+import ContractApiTest from "./components/ClientComponents/ContractApiTest";
 
 function App() {
+  console.log("App component mounting with routes for FreelancerOrderDetails");
   return (
     <div className="App">
       <Router>
@@ -31,6 +35,7 @@ function App() {
           <Route exact path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/contract-test" element={<ContractApiTest />} />
           <Route path="/dashboard/freelancer/:id">
             <Route index element={<FreelancerDashboard />} />
             <Route path="/dashboard/freelancer/:id/services">
@@ -51,10 +56,18 @@ function App() {
                 path="/dashboard/freelancer/:id/services/show/:serviceId"
                 element={<ServiceDetails type="1" />}
               />
+              <Route
+                path="/dashboard/freelancer/:id/services/order/:orderId"
+                element={<FreelancerOrderDetails />}
+              />
             </Route>
             <Route
               path="/dashboard/freelancer/:id/orders"
               element={<FreelancerOrders />}
+            />
+            <Route
+              path="/dashboard/freelancer/:id/contracts"
+              element={<FreelancerContracts />}
             />
             <Route
               path="/dashboard/freelancer/:id/chat"
@@ -98,6 +111,10 @@ function App() {
             <Route
               path="/dashboard/client/:id/profile"
               element={<Profile type="2" />}
+            />
+            <Route
+              path="/dashboard/client/:id/contract-test"
+              element={<ContractApiTest />}
             />
           </Route>
           <Route path="*" element={<PageNotFound />} />

@@ -88,6 +88,8 @@ const userSlice = createSlice({
     data: [],
     role: null,
     error: null,
+    user: null,
+    ethereumAddress: null,
   },
   reducers: {
     setUserId: (state, action) => {
@@ -101,6 +103,12 @@ const userSlice = createSlice({
     },
     setUserRole: (state, action) => {
       state.role = action.payload;
+    },
+    updateEthereumAddress: (state, action) => {
+      state.ethereumAddress = action.payload;
+      if (state.user) {
+        state.user.ethereumAddress = action.payload;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -128,7 +136,12 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUserId, setToken, setAvatar, setUserRole } =
-  userSlice.actions;
+export const {
+  setUserId,
+  setToken,
+  setAvatar,
+  setUserRole,
+  updateEthereumAddress,
+} = userSlice.actions;
 
 export default userSlice.reducer;

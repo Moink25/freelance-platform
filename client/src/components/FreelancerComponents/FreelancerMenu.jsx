@@ -1,10 +1,11 @@
+import React from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   AiOutlineDashboard,
   AiOutlineUser,
   AiOutlineLogout,
 } from "react-icons/ai";
-import { BsCodeSquare } from "react-icons/bs";
+import { BsCodeSquare, BsFileEarmarkText } from "react-icons/bs";
 import { FiShoppingCart } from "react-icons/fi";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { BiChat } from "react-icons/bi";
@@ -47,6 +48,12 @@ export default function FreelancerMenu({ active }) {
           <li className={active === "orders" ? "active" : ""}>
             <FiShoppingCart className="navIcons" />
             <span>Orders</span>
+          </li>
+        </Link>
+        <Link to={`/dashboard/freelancer/${id}/contracts`}>
+          <li className={active === "contracts" ? "active" : ""}>
+            <BsFileEarmarkText className="navIcons" />
+            <span>Contracts</span>
           </li>
         </Link>
         <Link to={`/dashboard/freelancer/${id}/chat`}>

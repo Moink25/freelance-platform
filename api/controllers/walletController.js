@@ -134,6 +134,7 @@ const verifyPayment = async (req, res) => {
       userId: req.userId,
       amount: amountInRupees,
       type: "deposit",
+      method: "razorpay", // Add method to avoid validation error
       status: "completed",
       paymentId: razorpay_payment_id,
       description: `Wallet deposit of ₹${amountInRupees}`,
@@ -180,10 +181,14 @@ const updateAccount = async (req, res) => {
 // Process withdrawal request
 const withdrawMoney = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, method, details } = req.body;
 
     if (!amount || amount <= 0) {
       return res.status(400).json({ msg: "Invalid amount" });
+    }
+
+    if (!method) {
+      return res.status(400).json({ msg: "Withdrawal method is required" });
     }
 
     const user = await UserModel.findById(req.userId);
@@ -195,10 +200,26 @@ const withdrawMoney = async (req, res) => {
       return res.status(400).json({ msg: "Insufficient balance" });
     }
 
-    if (!user.razorpayAccount) {
+    // Validate details based on the selected withdrawal method
+    if (
+      method === "bank" &&
+      (!details.accountNumber || !details.ifscCode || !details.accountName)
+    ) {
       return res
         .status(400)
-        .json({ msg: "Please update your Razorpay account details first" });
+        .json({ msg: "Complete bank account details are required" });
+    } else if (method === "upi" && !details.upiId) {
+      return res.status(400).json({ msg: "UPI ID is required" });
+    } else if (
+      method === "card" &&
+      (!details.cardNumber ||
+        !details.cardHolderName ||
+        !details.expiryMonth ||
+        !details.expiryYear)
+    ) {
+      return res
+        .status(400)
+        .json({ msg: "Complete card details are required" });
     }
 
     // Create a withdrawal transaction record (pending status)
@@ -206,8 +227,26 @@ const withdrawMoney = async (req, res) => {
       userId: req.userId,
       amount: amount,
       type: "withdrawal",
+      method: method,
       status: "pending",
-      description: `Withdrawal request of ₹${amount}`,
+      description: `Withdrawal request of ₹${amount} via ${method}`,
+      details: {
+        // Store only minimal, necessary information based on method
+        ...(method === "bank" && {
+          accountName: details.accountName,
+          accountNumberLast4: details.accountNumber.slice(-4),
+          ifscCode: details.ifscCode,
+        }),
+        ...(method === "upi" && {
+          upiId: details.upiId,
+        }),
+        ...(method === "card" && {
+          cardHolderName: details.cardHolderName,
+          cardNumberLast4: details.cardNumber.slice(-4),
+          expiryMonth: details.expiryMonth,
+          expiryYear: details.expiryYear,
+        }),
+      },
     });
     await transaction.save();
 
@@ -215,19 +254,59 @@ const withdrawMoney = async (req, res) => {
     user.wallet -= amount;
     await user.save();
 
-    // In a real implementation, you would integrate with Razorpay's payout API here
-    // For simplicity, we're just creating a transaction record
+    // In a real implementation, integrate with Razorpay's payout API based on the withdrawal method
+    // This would be a multi-step process involving:
+    // 1. Fund Account API call to create/validate the destination account
+    // 2. Payout API call to transfer the funds
 
-    // Update the transaction to completed status (in a real scenario, this would happen after confirming the payout)
-    transaction.status = "completed";
-    await transaction.save();
+    try {
+      // Simulate a Razorpay payout API call
+      console.log(
+        `Processing withdrawal of ₹${amount} via ${method} for user ${user._id}`
+      );
 
-    return res.status(200).json({
-      msg: "Withdrawal processed successfully",
-      balance: user.wallet,
-    });
+      // For demo purposes, we'll simulate a 2-second payout processing time
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Simulate a successful payout
+      const payoutId = `pout_${Math.random().toString(36).substring(2, 10)}`;
+
+      // Update the transaction with payout details
+      transaction.status = "completed";
+      transaction.paymentId = payoutId;
+      await transaction.save();
+
+      console.log(`Withdrawal processed successfully. Payout ID: ${payoutId}`);
+
+      return res.status(200).json({
+        msg: "Withdrawal processed successfully",
+        balance: user.wallet,
+        transaction: {
+          id: transaction._id,
+          status: transaction.status,
+          payoutId: payoutId,
+        },
+      });
+    } catch (payoutError) {
+      // If payout fails, refund the money to the user's wallet and mark transaction as failed
+      console.error("Payout error:", payoutError);
+
+      user.wallet += amount;
+      await user.save();
+
+      transaction.status = "failed";
+      transaction.description += ` - Failed: ${
+        payoutError.message || "Payout processing error"
+      }`;
+      await transaction.save();
+
+      return res.status(500).json({
+        msg: "Withdrawal failed. Your wallet has been refunded.",
+        error: payoutError.message || "Error processing payout",
+      });
+    }
   } catch (error) {
-    console.error(error);
+    console.error("Withdrawal error:", error);
     return res.status(500).json({ msg: "Error processing withdrawal" });
   }
 };
@@ -283,6 +362,7 @@ const processOrderPayment = async (req, res) => {
       userId: req.userId,
       amount: amount,
       type: "payment",
+      method: "razorpay", // Specify method
       status: "completed",
       orderId: order._id,
       description: `Payment for order #${order._id}`,
@@ -294,6 +374,7 @@ const processOrderPayment = async (req, res) => {
       userId: freelancer._id,
       amount: amount,
       type: "earnings",
+      method: "razorpay", // Specify method
       status: "completed",
       orderId: order._id,
       description: `Earnings from order #${order._id}`,

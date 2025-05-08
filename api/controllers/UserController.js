@@ -120,6 +120,75 @@ const updateUser = async (
     return null;
   }
 };
+
+// Update user's Ethereum address
+const updateEthereumAddress = async (req, res) => {
+  try {
+    console.log("updateEthereumAddress called with:", {
+      userId: req.userId,
+      body: req.body
+    });
+    
+    // Get userId from request
+    const userId = req.userId;
+    
+    if (!userId) {
+      console.error("userId is undefined in updateEthereumAddress");
+      return res.status(400).json({
+        success: false,
+        message: "User ID not found in request",
+      });
+    }
+    
+    const { ethereumAddress } = req.body;
+
+    if (!ethereumAddress) {
+      return res.status(400).json({
+        success: false,
+        message: "Ethereum address is required",
+      });
+    }
+
+    console.log(`Updating Ethereum address to ${ethereumAddress} for user ${userId}`);
+
+    // Find the user first to make sure they exist
+    const user = await User.findById(userId);
+    if (!user) {
+      console.error(`User not found with ID: ${userId}`);
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    console.log(`Found user: ${user.username} (${user._id})`);
+
+    // Update the user's Ethereum address
+    user.ethereumAddress = ethereumAddress;
+    await user.save();
+    
+    console.log(`Successfully updated Ethereum address for user ${user.username}`);
+    
+    return res.status(200).json({
+      success: true,
+      message: "Ethereum address updated successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        ethereumAddress: user.ethereumAddress,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating Ethereum address:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error updating Ethereum address: " + error.message,
+    });
+  }
+};
+
 module.exports = {
   userExists,
   findUserById,
@@ -127,4 +196,5 @@ module.exports = {
   registerUser,
   loginUser,
   updateUser,
+  updateEthereumAddress,
 };
