@@ -9,8 +9,13 @@ const TransactionModel = require("../models/transactionModel");
 const mongoose = require("mongoose");
 
 const findOrder = async (orderId) => {
-  const selectedOrder = Order.findById(orderId);
-  return selectedOrder;
+  try {
+    const selectedOrder = await Order.findById(orderId);
+    return selectedOrder;
+  } catch (error) {
+    console.error(`Error finding order ${orderId}:`, error);
+    return null;
+  }
 };
 
 const findClientOrders = async (clientId) => {
@@ -23,17 +28,31 @@ const findClientOrders = async (clientId) => {
     if (clientOrders.length != 0) {
       let allOrdersInfo = [];
       for (let i of clientOrders) {
-        const serviceInfo = await findServiceById(i.serviceId.toString());
-        const serviceRating = await getServiceRating(i.serviceId.toString());
-        const serviceUserInfo = await findUserById(serviceInfo.userId);
-        const ordersInfo = {
-          serviceInfo,
-          serviceRating,
-          serviceUserInfo,
-          status: i.status,
-          _id: i._id,
-        };
-        allOrdersInfo.push(ordersInfo);
+        try {
+          const serviceInfo = await findServiceById(i.serviceId?.toString());
+          if (!serviceInfo) {
+            console.error(`Service not found for order ID: ${i._id}`);
+            continue; // Skip this order if service not found
+          }
+
+          const serviceRating = await getServiceRating(i.serviceId?.toString());
+          const serviceUserInfo = await findUserById(serviceInfo.userId);
+
+          const ordersInfo = {
+            serviceInfo,
+            serviceRating: serviceRating || 0,
+            serviceUserInfo: serviceUserInfo || {
+              username: "Unknown User",
+              image: "no-image.png",
+            },
+            status: i.status,
+            _id: i._id,
+          };
+          allOrdersInfo.push(ordersInfo);
+        } catch (error) {
+          console.error(`Error processing order ${i._id}:`, error);
+          // Continue with next order
+        }
       }
       return allOrdersInfo;
     }
@@ -50,21 +69,36 @@ const findClientOrder = async (clientId, orderId) => {
     }
     const clientOrder = await findOrder(orderId);
     if (clientOrder) {
-      const serviceInfo = await findServiceById(
-        clientOrder.serviceId.toString()
-      );
-      const serviceRating = await getServiceRating(
-        clientOrder.serviceId.toString()
-      );
-      const serviceUserInfo = await findUserById(serviceInfo.userId);
-      const orderInfo = {
-        serviceInfo,
-        serviceRating,
-        serviceUserInfo,
-        status: clientOrder.status,
-        _id: clientOrder._id,
-      };
-      return orderInfo;
+      try {
+        const serviceInfo = await findServiceById(
+          clientOrder.serviceId?.toString()
+        );
+
+        if (!serviceInfo) {
+          console.error(`Service not found for order ID: ${orderId}`);
+          return "Service not found for this order";
+        }
+
+        const serviceRating = await getServiceRating(
+          clientOrder.serviceId?.toString()
+        );
+        const serviceUserInfo = await findUserById(serviceInfo.userId);
+
+        const orderInfo = {
+          serviceInfo,
+          serviceRating: serviceRating || 0,
+          serviceUserInfo: serviceUserInfo || {
+            username: "Unknown User",
+            image: "no-image.png",
+          },
+          status: clientOrder.status,
+          _id: clientOrder._id,
+        };
+        return orderInfo;
+      } catch (error) {
+        console.error(`Error processing order ${orderId}:`, error);
+        return "Error processing order details";
+      }
     }
     return "Order Doesn't Exists";
   }

@@ -40,24 +40,28 @@ export default function ClientOrders() {
     dispatch(getOrders())
       .unwrap()
       .then((data) => {
+        console.log("Orders data received:", data);
         setTimeout(() => {
           setLoading(false);
           if (data.status == 200) {
-            setNewData(data.clientOrders);
+            setNewData(data.clientOrders || []);
           }
           if (data.status == 404 || data.status == 403) {
-            toast.error(data.msg);
+            toast.error(data.msg || "Authentication error");
             navigate("/login");
           }
           if (data.status == 505) {
-            toast.error(data.msg);
+            toast.error(data.msg || "Server error");
           }
         }, 1000);
       })
       .catch((rejectedValueOrSerializedError) => {
+        console.error("Error fetching orders:", rejectedValueOrSerializedError);
         setTimeout(() => {
           setLoading(false);
-          toast.error(rejectedValueOrSerializedError);
+          toast.error(
+            rejectedValueOrSerializedError || "Failed to load orders"
+          );
         }, 1000);
       });
   }, []);
@@ -125,29 +129,43 @@ export default function ClientOrders() {
                 newdata.map((order) => (
                   <div key={order._id} className="service">
                     <div className="slider">
-                      <Slider images={order.serviceInfo.images.split("|")} />
+                      {order.serviceInfo && order.serviceInfo.images ? (
+                        <Slider images={order.serviceInfo.images.split("|")} />
+                      ) : (
+                        <img src={noImage} alt="Service" />
+                      )}
                     </div>
                     <div className="serviceHeader">
                       <img
                         src={
+                          !order.serviceUserInfo ||
                           order.serviceUserInfo.image === "no-image.png"
                             ? noImage
                             : `http://localhost:3001/ProfilePic/${order.serviceUserInfo.image}`
                         }
                         alt=""
                       />
-                      <span>{order.serviceUserInfo.username}</span>
+                      <span>
+                        {order.serviceUserInfo?.username || "Unknown User"}
+                      </span>
                     </div>
                     <div className="serviceBody">
                       <p className="serviceTitle">
-                        {order.serviceInfo.title.length > 19
-                          ? `${order.serviceInfo.title.slice(0, 19)}...`
-                          : order.serviceInfo.title}
+                        {order.serviceInfo?.title
+                          ? order.serviceInfo.title.length > 19
+                            ? `${order.serviceInfo.title.slice(0, 19)}...`
+                            : order.serviceInfo.title
+                          : "Untitled Service"}
                       </p>
                       <p className="serviceDescription">
-                        {order.serviceInfo.description.length > 100
-                          ? `${order.serviceInfo.description.slice(0, 100)}...`
-                          : order.serviceInfo.description}
+                        {order.serviceInfo?.description
+                          ? order.serviceInfo.description.length > 100
+                            ? `${order.serviceInfo.description.slice(
+                                0,
+                                100
+                              )}...`
+                            : order.serviceInfo.description
+                          : "No description available"}
                       </p>
                       <div className="rating-more">
                         <div className="rating">
@@ -158,7 +176,9 @@ export default function ClientOrders() {
                             <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
                           </svg>
                           <span>
-                            {order.serviceRating !== 0
+                            {order.serviceRating !== undefined &&
+                            order.serviceRating !== null &&
+                            order.serviceRating !== 0
                               ? order.serviceRating
                               : "Not Rated"}
                           </span>
@@ -173,17 +193,19 @@ export default function ClientOrders() {
                     </div>
                     <hr />
                     <div className="servicePrice">
-                      Price: {order.serviceInfo.price} ₹
+                      Price: {order.serviceInfo?.price || 0} ₹
                     </div>
                     <hr />
                     <div className="serviceState">
                       State:{" "}
-                      {order.status == "OnGoing" ? (
+                      {order.status === "OnGoing" ? (
                         <span className="ongoing">OnGoing</span>
-                      ) : order.status == "Cancelled" ? (
+                      ) : order.status === "Cancelled" ? (
                         <span className="cancelled">Cancelled</span>
-                      ) : (
+                      ) : order.status === "Completed" ? (
                         <span className="completed">Completed</span>
+                      ) : (
+                        <span>Unknown</span>
                       )}
                     </div>
                   </div>

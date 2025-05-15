@@ -99,6 +99,10 @@ function App() {
             path="/freelancer/:id/project/:projectId"
             element={<FreelancerProjectDetails />}
           />
+          <Route
+            path="/freelancer/:id/services/show/:serviceId"
+            element={<ServiceDetails type="1" />}
+          />
 
           {/* Client Routes */}
           <Route path="/dashboard/client/:id">

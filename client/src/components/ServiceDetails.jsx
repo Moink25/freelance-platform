@@ -106,18 +106,22 @@ export default function ServiceDetails({ type }) {
         .then((data) => {
           setTimeout(() => {
             setLoading(false);
-            if (data.status == 404) {
+            if (!data || data.status == 404) {
+              toast.error("Service not found");
               navigate("/404");
+              return;
             }
             if (data.status == 505) {
-              toast.error(data.msg);
+              toast.error(data.msg || "Error loading service details");
             }
           }, 1000);
         })
         .catch((rejectedValueOrSerializedError) => {
           setTimeout(() => {
             setLoading(false);
-            toast.error(rejectedValueOrSerializedError);
+            toast.error(
+              rejectedValueOrSerializedError || "Failed to load service details"
+            );
           }, 1000);
         });
     }
@@ -127,18 +131,24 @@ export default function ServiceDetails({ type }) {
         .then((data) => {
           setTimeout(() => {
             setLoading(false);
-            if (data.status == 404) {
+            if (!data || data.status == 404) {
+              toast.error("Service not found");
               navigate("/404");
+              return;
             }
             if (data.status == 505) {
-              toast.error(data.msg);
+              toast.error(data.msg || "Error loading service details");
             }
+            // Debug log
+            console.log("Service data received:", data);
           }, 1000);
         })
         .catch((rejectedValueOrSerializedError) => {
           setTimeout(() => {
             setLoading(false);
-            toast.error(rejectedValueOrSerializedError);
+            toast.error(
+              rejectedValueOrSerializedError || "Failed to load service details"
+            );
           }, 1000);
         });
     }
@@ -166,14 +176,28 @@ export default function ServiceDetails({ type }) {
   };
 
   useEffect(() => {
-    tokenExists(token, navigate, dispatch).then(
-      (data) =>
-        (data == false ||
-          JSON.parse(localStorage.getItem("userInfo"))._id != id ||
-          window.location.href.slice(32).split("/")[0] !=
-            JSON.parse(localStorage.getItem("userInfo")).role) &&
-        navigate("/login")
-    );
+    tokenExists(token, navigate, dispatch).then((data) => {
+      if (
+        data == false ||
+        JSON.parse(localStorage.getItem("userInfo"))._id != id
+      ) {
+        navigate("/login");
+        return;
+      }
+
+      // Check if user role matches the current route (client or freelancer)
+      const url = window.location.href;
+      const isClient = url.includes("client");
+      const isFreelancer = url.includes("freelancer");
+      const userRole = JSON.parse(localStorage.getItem("userInfo")).role;
+
+      if (
+        (isClient && userRole !== "client") ||
+        (isFreelancer && userRole !== "freelancer")
+      ) {
+        navigate("/login");
+      }
+    });
     fetchData();
   }, []);
 
@@ -424,14 +448,20 @@ export default function ServiceDetails({ type }) {
                 {data?.selectedService && (
                   <>
                     <div className="mySwiperContainer">
-                      <Slider images={data.selectedService.images.split("|")} />
+                      {data.selectedService.images ? (
+                        <Slider
+                          images={data.selectedService.images.split("|")}
+                        />
+                      ) : (
+                        <img src={noImage} alt="Service" />
+                      )}
                     </div>
                     <div className="service-title">
                       {data.selectedService.title}
                     </div>
                     <div className="service-description">
                       {data.selectedService.description
-                        .split("\n")
+                        ?.split("\n")
                         .map((line, i) => (
                           <p key={i}>{line}</p>
                         ))}
@@ -534,18 +564,22 @@ export default function ServiceDetails({ type }) {
               data?.clientOrderInfo && (
                 <>
                   <div className="mySwiperContainer">
-                    <Slider
-                      images={data.clientOrderInfo.serviceInfo.images.split(
-                        "|"
-                      )}
-                    />
+                    {data.clientOrderInfo.serviceInfo?.images ? (
+                      <Slider
+                        images={data.clientOrderInfo.serviceInfo.images.split(
+                          "|"
+                        )}
+                      />
+                    ) : (
+                      <img src={noImage} alt="Service" />
+                    )}
                   </div>
                   <div className="service-title">
-                    {data.clientOrderInfo.serviceInfo.title}
+                    {data.clientOrderInfo.serviceInfo?.title}
                   </div>
                   <div className="service-description">
-                    {data.clientOrderInfo.serviceInfo.description
-                      .split("\n")
+                    {data.clientOrderInfo.serviceInfo?.description
+                      ?.split("\n")
                       .map((line, i) => (
                         <p key={i}>{line}</p>
                       ))}

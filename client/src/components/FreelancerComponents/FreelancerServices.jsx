@@ -147,7 +147,7 @@ export default function FreelancerServices() {
                           </span>
                         </div>
                         <HashLink
-                          to={`/dashboard/freelancer/${id}/services/show/${service._id}`}
+                          to={`/freelancer/${id}/services/show/${service._id}`}
                         >
                           <button>See More</button>
                         </HashLink>
