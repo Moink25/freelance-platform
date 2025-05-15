@@ -1272,116 +1272,147 @@ nav button a {
 
 /* Start Create Service */
 .FreelancerCreateService .section {
-  min-height: calc(100vh - 173px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.FreelancerCreateService .go-back-button {
-  align-self: flex-start;
-  margin-top: 20px;
-}
-.FreelancerCreateService .go-back-button button {
-  margin-top: 7px;
-  cursor: pointer;
-  outline: none;
-  border: none;
-  background-color: var(--color-orange);
-  color: white;
-  padding: 10px 55px;
-  font-size: 16px;
-  margin-top: 25px;
-  border-radius: 10px;
-}
-.FreelancerCreateService .createHeader {
-  font-size: 50px;
-  text-align: center;
-  color: var(--color-orange);
-  margin-top: 20px;
-  margin-bottom: 50px;
-}
-.FreelancerCreateService form {
-  width: 922px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-.FreelancerCreateService form label {
-  display: inline-block;
-  color: var(--color-orange);
-  font-weight: bold;
-  font-size: 14px;
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
   width: 100%;
-  text-align: left;
-  margin-bottom: 8px;
 }
-.FreelancerCreateService form input {
-  color: white;
+
+.FreelancerCreateService .go-back-button {
+  display: inline-block;
+  margin-bottom: 30px;
+}
+
+.FreelancerCreateService .go-back-button button {
   background-color: var(--color-orange);
-  border: 2px solid var(--color-light-orange);
-  outline: none;
-  width: 90%;
-  padding: 17px 20px;
-  font-size: 18px;
-  border-radius: 10px;
-}
-.FreelancerCreateService form textarea {
   color: white;
-  padding: 17px 20px;
-  background-color: var(--color-orange);
-  border: 1px solid var(--color-light-orange);
-  outline: none;
-  font-size: 18px;
-  border-radius: 10px;
-  width: 90%;
-  min-width: 90%;
-  max-width: 90%;
-  min-height: 22px;
-}
-.FreelancerCreateService .images {
-  cursor: pointer;
-  color: white;
-  background-color: var(--color-orange);
-  border: 2px solid var(--color-light-orange);
-  width: 90%;
-  padding: 17px 20px;
-  font-size: 18px;
-  border-radius: 10px;
-  text-align: center;
-  font-weight: 500;
-}
-.FreelancerCreateService form button {
-  margin-top: 7px;
-  cursor: pointer;
-  outline: none;
   border: none;
-  border-radius: 30px;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.FreelancerCreateService .go-back-button button:hover {
+  background-color: #e5963d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.FreelancerCreateService .createHeader {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+}
+
+.FreelancerCreateService .createHeader:after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: var(--color-orange);
+  border-radius: 2px;
+}
+
+.FreelancerCreateService form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.FreelancerCreateService .form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.FreelancerCreateService form label {
+  font-weight: 600;
+  color: #444;
+  font-size: 1rem;
+}
+
+.FreelancerCreateService form input {
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.FreelancerCreateService form textarea {
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-height: 150px;
+  font-size: 1rem;
+  resize: vertical;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.FreelancerCreateService form input:focus,
+.FreelancerCreateService form textarea:focus {
+  border-color: var(--color-orange);
+  box-shadow: 0 0 0 2px rgba(242, 153, 74, 0.2);
+  outline: none;
+}
+
+.FreelancerCreateService .images {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.FreelancerCreateService form button {
   background-color: var(--color-orange);
   color: white;
-  padding: 10px 55px;
-  font-size: 16px;
-  margin-top: 25px;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
   align-self: center;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.FreelancerCreateService form button:hover {
+  background-color: #e5963d;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .FreelancerCreateService form input[type="file"] {
-  display: none;
+  padding: 12px;
 }
+
 .FreelancerCreateService input::placeholder,
 .FreelancerCreateService textarea::placeholder {
-  color: white;
+  color: #aaa;
 }
+
 .FreelancerCreateService input:focus::placeholder,
 .FreelancerCreateService textarea:focus::placeholder {
-  opacity: 0;
-  transition: 0.3s;
+  color: #ccc;
 }
+
 @media (max-width: 930px) {
   .FreelancerCreateService form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
+    max-width: 100%;
   }
 }
 /* End Create Service */
@@ -3121,12 +3152,12 @@ nav button a {
 }
 
 .create-service-btn {
-  background-color: var(--color-primary) !important;
+  background-color: var(--color-orange) !important;
   color: white !important;
 }
 
 .create-service-btn:hover {
-  background-color: #0056b3 !important;
+  background-color: #e5963d !important;
   transform: translateY(-2px);
 }
 
@@ -5160,5 +5191,342 @@ nav button a {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+  }
+}
+
+/* Proposal Form Styles */
+.proposalForm {
+  background-color: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-top: 30px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.proposalForm h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-orange);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.proposalForm form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.proposalForm .formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.proposalForm .formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.proposalForm label {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.proposalForm input,
+.proposalForm textarea {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.proposalForm input:focus,
+.proposalForm textarea:focus {
+  border-color: var(--color-orange);
+  box-shadow: 0 0 0 2px rgba(242, 153, 74, 0.2);
+  outline: none;
+}
+
+.proposalForm .budgetInputGroup {
+  position: relative;
+}
+
+.proposalForm .currencySymbol {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.proposalForm input[name="bidAmount"] {
+  padding-left: 30px;
+}
+
+.proposalForm textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.proposalForm .submitBtn {
+  background-color: var(--color-orange);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+  margin-top: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.proposalForm .submitBtn:hover {
+  background-color: #e5963d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .proposalForm .formGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .proposalForm .submitBtn {
+    width: 100%;
+  }
+}
+
+/* Freelancer Projects Styles */
+.freelancerProjects .section {
+  background-color: #f9fafb;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+  min-height: 70vh;
+}
+
+.freelancerProjects .backButton {
+  display: inline-block;
+  color: var(--color-orange);
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.freelancerProjects .backButton:hover {
+  color: #e5963d;
+  text-decoration: underline;
+}
+
+.freelancerProjects .tabsContainer {
+  display: flex;
+  background-color: white;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.freelancerProjects .tab {
+  flex: 1;
+  padding: 15px 20px;
+  text-align: center;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+}
+
+.freelancerProjects .tab.active {
+  background-color: var(--color-orange);
+  color: white;
+}
+
+.freelancerProjects .tab:hover:not(.active) {
+  background-color: #f5f5f5;
+  color: var(--color-orange);
+}
+
+.freelancerProjects .projectList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.freelancerProjects .projectCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+  height: 100%;
+}
+
+.freelancerProjects .projectCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.freelancerProjects .projectCard.assigned {
+  border-left: 4px solid #4CAF50;
+}
+
+.freelancerProjects .projectCard.proposed {
+  border-left: 4px solid #2196F3;
+}
+
+.freelancerProjects .projectHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.freelancerProjects .projectHeader h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.freelancerProjects .budget {
+  background-color: #f0f8ff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #0066cc;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  margin-left: 10px;
+}
+
+.freelancerProjects .badge {
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.freelancerProjects .badge.blue {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+
+.freelancerProjects .badge.green {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+}
+
+.freelancerProjects .badge.red {
+  background-color: #ffebee;
+  color: #b71c1c;
+}
+
+.freelancerProjects .projectBody {
+  flex: 1;
+  margin-bottom: 15px;
+}
+
+.freelancerProjects .projectBody p {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.freelancerProjects .skillsPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.freelancerProjects .skillTag {
+  background-color: #f0f4f8;
+  color: #495057;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.freelancerProjects .moreSkills {
+  color: #6c757d;
+  font-size: 0.8rem;
+  align-self: center;
+}
+
+.freelancerProjects .projectFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.freelancerProjects .postedDate {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.freelancerProjects .viewButton {
+  background-color: var(--color-orange);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.freelancerProjects .viewButton:hover {
+  background-color: #e5963d;
+  transform: translateY(-2px);
+}
+
+.freelancerProjects .noProjects {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.freelancerProjects .noProjects p {
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .freelancerProjects .projectList {
+    grid-template-columns: 1fr;
+  }
+  
+  .freelancerProjects .tabsContainer {
+    flex-direction: column;
   }
 }

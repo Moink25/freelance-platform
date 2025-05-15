@@ -133,69 +133,41 @@ const acceptProposal = async (userId, projectId, proposalId) => {
 
     const project = await Project.findById(projectId);
     if (!project) return "Project doesn't exist";
-    if (project.clientId.toString() !== userId.toString())
+    if (project.clientId.toString() !== userId)
       return "This is not your project";
-    if (project.status !== "open")
-      return "Project is already assigned or closed";
+    if (project.status !== "open") return "Project is not open for proposals";
 
-    // Find the proposal
-    const proposalIndex = project.proposals.findIndex(
-      (p) => p._id.toString() === proposalId
-    );
+    const proposal = project.proposals.id(proposalId);
+    if (!proposal) return "Proposal doesn't exist";
 
-    if (proposalIndex === -1) return "Proposal not found";
+    const freelancer = await User.findById(proposal.freelancerId);
+    if (!freelancer) return "Freelancer doesn't exist";
 
-    const proposal = project.proposals[proposalIndex];
-
-    // Update proposal status
-    project.proposals[proposalIndex].status = "accepted";
-
-    // Update project status and assign freelancer
-    project.status = "assigned";
-    project.assignedFreelancer = proposal.freelancerId;
-
-    // Update other proposals to rejected
-    project.proposals.forEach((p, index) => {
-      if (index !== proposalIndex) {
-        p.status = "rejected";
+    // Update proposal status and project
+    project.proposals.forEach((p) => {
+      if (p._id.toString() === proposalId) {
+        p.status = "accepted";
+      } else if (p.status !== "rejected") {
+        p.status = "declined";
       }
     });
 
-    // Get the freelancer for notification and contract
-    const freelancer = await User.findById(proposal.freelancerId);
-    if (!freelancer) {
-      throw new Error("Freelancer not found");
-    }
+    project.status = "assigned";
+    project.assignedFreelancer = proposal.freelancerId;
 
-    // Send notification to the accepted freelancer
+    // Notify freelancer about acceptance
     await createNotification(
       proposal.freelancerId,
       "Proposal Accepted",
-      `Your proposal for the project "${project.title}" has been accepted!`,
+      `Your proposal for "${project.title}" has been accepted! Check the project details for more information.`,
       "proposal",
-      projectId,
+      project._id,
       "project",
-      `/freelancer/${proposal.freelancerId}/project/${projectId}`
+      `/freelancer/${proposal.freelancerId}/project/${project._id}`
     );
 
-    // Send notifications to rejected freelancers
-    for (const p of project.proposals) {
-      if (p._id.toString() !== proposalId) {
-        await createNotification(
-          p.freelancerId,
-          "Proposal Not Selected",
-          `Your proposal for the project "${project.title}" was not selected.`,
-          "proposal",
-          projectId,
-          "project",
-          `/freelancer/${p.freelancerId}/project/${projectId}`
-        );
-      }
-    }
-
-    // Create contract in blockchain
+    // Create a blockchain contract if blockchain integration is enabled
     try {
-      console.log("Creating and activating contract for accepted proposal...");
       const contractData = {
         clientId: userId,
         freelancerId: proposal.freelancerId.toString(),

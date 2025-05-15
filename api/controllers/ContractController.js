@@ -359,7 +359,7 @@ const createSmartContract = async (orderIdOrData) => {
       // It's an orderId, use the existing function
       return await createBlockchainContract(orderIdOrData);
     } else if (typeof orderIdOrData === "object") {
-      // It's project data, create an order first
+      // It's project data, create a contract directly without creating an order
       const {
         clientId,
         freelancerId,
@@ -367,62 +367,69 @@ const createSmartContract = async (orderIdOrData) => {
         amount,
         projectTitle,
         projectDescription,
+        clientName,
+        freelancerName,
       } = orderIdOrData;
 
-      // Create a simulated order for this project
-      const OrderModel = require("../models/orderModel");
-      const ServiceModel = require("../models/serviceModel");
-
-      // Check if order already exists for this project
-      const existingOrder = await OrderModel.findOne({ projectId });
-      if (existingOrder) {
-        // Return the existing contract or create a new one
-        const existingContract = await ContractModel.findOne({
-          orderId: existingOrder._id,
-        });
-        if (existingContract) {
-          return {
-            success: true,
-            message: "Contract already exists for this project",
-            contract: existingContract,
-            contractId: existingContract._id,
-          };
-        }
-
-        // Create a contract using the existing order
-        return await createBlockchainContract(existingOrder._id);
+      // Check if contract already exists for this project
+      const existingContract = await ContractModel.findOne({ projectId });
+      if (existingContract) {
+        return {
+          success: true,
+          message: "Contract already exists for this project",
+          contract: existingContract,
+          contractId: existingContract._id,
+        };
       }
 
-      // Find or create a service for this project
-      let service = await ServiceModel.findOne({ projectId });
-      if (!service) {
-        service = new ServiceModel({
-          userId: freelancerId,
-          title: projectTitle || "Project Service",
-          description: projectDescription || "Service created for project",
-          projectId,
-          price: amount,
-        });
-        await service.save();
+      // Get client and freelancer details
+      const client = await UserModel.findById(clientId);
+      const freelancer = await UserModel.findById(freelancerId);
+
+      if (!client || !freelancer) {
+        return { success: false, message: "User not found" };
       }
 
-      // Create order
-      const order = new OrderModel({
-        clientId,
-        serviceId: service._id,
-        amount,
-        status: "OnGoing",
-        projectId,
+      // Create smart contract terms
+      const terms = `Project: ${projectTitle}\nDescription: ${projectDescription}\nAmount: ${amount}\nAgreed by ${
+        clientName || client.username
+      } and ${freelancerName || freelancer.username}`;
+
+      // Set delivery date (30 days from now for demo)
+      const deliveryDate = new Date();
+      deliveryDate.setDate(deliveryDate.getDate() + 30);
+
+      // Create a new contract directly without an order
+      const newContract = new ContractModel({
+        clientId: client._id,
+        freelancerId: freelancer._id,
+        projectId: projectId,
+        amount: amount,
+        status: "created",
+        terms: terms,
+        deliveryDate: deliveryDate,
+        clientEthereumAddress: client.ethereumAddress,
       });
-      await order.save();
 
-      // Create contract using the new order
-      const result = await createBlockchainContract(order._id);
-      if (result.success && result.contract) {
-        // Store the contract ID in a way ProjectController can access it
-        result.contractId = result.contract._id;
-      }
-      return result;
+      // Generate simulated blockchain data
+      const contractAddress = `0x${require("crypto")
+        .randomBytes(20)
+        .toString("hex")}`;
+      const transactionHash = `0x${require("crypto")
+        .randomBytes(32)
+        .toString("hex")}`;
+
+      // Save contract address and transaction hash
+      newContract.contractAddress = contractAddress;
+      newContract.transactionHash = transactionHash;
+      await newContract.save();
+
+      return {
+        success: true,
+        message: "Contract created successfully",
+        contract: newContract,
+        contractId: newContract._id,
+      };
     } else {
       throw new Error("Invalid parameter for createSmartContract");
     }
