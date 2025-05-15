@@ -50,9 +50,15 @@ const FreelancerContractDetails = ({ orderId }) => {
       setLoading(true);
       setError(null);
 
-      console.log("Activating contract for order:", orderId);
+      if (!contract || !contract._id) {
+        setError("Contract not found. Please refresh or try again later.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Activating contract ID:", contract._id);
       const response = await axios.post(
-        `http://localhost:3001/api/contracts/activate/${orderId}`,
+        `http://localhost:3001/api/contracts/activate/${contract._id}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -121,8 +127,8 @@ const FreelancerContractDetails = ({ orderId }) => {
 
       console.log("Creating contract for order:", orderId);
       const response = await axios.post(
-        `http://localhost:3001/api/contracts/create/${orderId}`,
-        {},
+        `http://localhost:3001/api/contracts/create`,
+        { orderId: orderId },
         {
           headers: { Authorization: `Bearer ${token}` },
         }

@@ -53,12 +53,12 @@ export default function FreelancerContracts() {
     }
   };
 
-  const activateContract = async (orderId) => {
+  const activateContract = async (contractId) => {
     setLoading(true);
     try {
-      console.log("Activating contract for order:", orderId);
+      console.log("Activating contract:", contractId);
       const response = await axios.post(
-        `http://localhost:3001/api/contracts/activate/${orderId}`,
+        `http://localhost:3001/api/contracts/activate/${contractId}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -240,7 +240,7 @@ export default function FreelancerContracts() {
                       {contract.status === "created" && (
                         <button
                           className="activate-contract-btn"
-                          onClick={() => activateContract(contract.orderId)}
+                          onClick={() => activateContract(contract._id)}
                         >
                           Accept & Activate
                         </button>

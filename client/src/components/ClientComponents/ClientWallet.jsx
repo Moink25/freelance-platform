@@ -200,22 +200,37 @@ export default function ClientWallet() {
                     >
                       <div className="transaction-info">
                         <div className="transaction-type">
-                          {transaction.type.charAt(0).toUpperCase() +
-                            transaction.type.slice(1)}
+                          {transaction.type === "deduction"
+                            ? "Payment"
+                            : transaction.type === "credit"
+                            ? "Earnings"
+                            : transaction.type.charAt(0).toUpperCase() +
+                              transaction.type.slice(1)}
+                          {transaction.method && (
+                            <span className="transaction-method">
+                              via {transaction.method}
+                            </span>
+                          )}
                         </div>
+                        {transaction.description && (
+                          <div className="transaction-description">
+                            {transaction.description}
+                          </div>
+                        )}
                         <div className="transaction-date">
                           {formatDate(transaction.createdAt)}
                         </div>
                       </div>
                       <div className="transaction-amount">
-                        {transaction.type === "deposit"
+                        {transaction.type === "deposit" ||
+                        transaction.type === "credit"
                           ? "+"
-                          : transaction.type === "payment"
-                          ? "-"
-                          : ""}
+                          : "-"}
                         {transaction.amount} ₹
                       </div>
-                      <div className="transaction-status">
+                      <div
+                        className={`transaction-status status-${transaction.status}`}
+                      >
                         {transaction.status}
                       </div>
                     </div>

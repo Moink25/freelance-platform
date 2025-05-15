@@ -9,6 +9,7 @@ import { BsCodeSquare, BsFileEarmarkText } from "react-icons/bs";
 import { FiShoppingCart } from "react-icons/fi";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { BiChat } from "react-icons/bi";
+import { GoProject } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
@@ -42,6 +43,12 @@ export default function FreelancerMenu({ active }) {
           <li className={active === "services" ? "active" : ""}>
             <BsCodeSquare className="navIcons" />
             <span>Services</span>
+          </li>
+        </Link>
+        <Link to={`/freelancer/${id}/projects`}>
+          <li className={active === "projects" ? "active" : ""}>
+            <GoProject className="navIcons" />
+            <span>Projects</span>
           </li>
         </Link>
         <Link to={`/dashboard/freelancer/${id}/orders`}>

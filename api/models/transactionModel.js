@@ -7,11 +7,18 @@ const TransactionModel = new Schema(
     amount: Number,
     type: {
       type: String,
-      enum: ["deposit", "withdrawal", "payment", "earnings"],
+      enum: [
+        "deposit",
+        "withdrawal",
+        "payment",
+        "earnings",
+        "deduction",
+        "credit",
+      ],
     },
     method: {
       type: String,
-      enum: ["bank", "upi", "card", "razorpay", null], // Allow null value in enum
+      enum: ["bank", "upi", "card", "razorpay", "project", null], // Allow null value in enum
       default: null,
     },
     status: {
@@ -26,6 +33,7 @@ const TransactionModel = new Schema(
       type: Schema.Types.Mixed, // Flexible schema to store different withdrawal method details
       default: null,
     },
+    relatedId: { type: Schema.Types.ObjectId, default: null }, // For linking to projects, orders, etc.
   },
   { timestamps: true }
 );

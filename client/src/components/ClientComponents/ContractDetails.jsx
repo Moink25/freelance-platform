@@ -44,8 +44,8 @@ const ContractDetails = ({ orderId }) => {
       console.log("Using token:", token);
 
       const response = await axios.post(
-        `http://localhost:3001/api/contracts/create/${orderId}`,
-        {},
+        `http://localhost:3001/api/contracts/create`,
+        { orderId: orderId },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -94,10 +94,17 @@ const ContractDetails = ({ orderId }) => {
   const activateContract = async () => {
     try {
       setLoading(true);
-      console.log("Attempting to activate contract for order:", orderId);
+
+      if (!contract || !contract._id) {
+        toast.error("Contract not found. Please refresh or try again later.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Attempting to activate contract ID:", contract._id);
 
       const response = await axios.post(
-        `http://localhost:3001/api/contracts/activate/${orderId}`,
+        `http://localhost:3001/api/contracts/activate/${contract._id}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

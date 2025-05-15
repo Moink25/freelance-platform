@@ -10,6 +10,8 @@ const clientRoutes = require("./routes/ClientRoutes");
 const chatRoutes = require("./routes/ChatRoutes");
 const walletRoutes = require("./routes/walletRoutes");
 const contractRoutes = require("./routes/contractRoutes");
+const projectRoutes = require("./routes/ProjectRoutes");
+const notificationRoutes = require("./routes/NotificationRoutes");
 const bodyParser = require("body-parser");
 
 app.use(bodyParser.json());
@@ -23,6 +25,8 @@ app.use("/client", clientRoutes);
 app.use("/chat", chatRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/contracts", contractRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.use("/ProfilePic", express.static(__dirname + "/uploads/Users_imgs"));
 app.use("/ServicePic", express.static(__dirname + "/uploads/UsersServices"));

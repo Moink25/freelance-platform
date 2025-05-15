@@ -351,6 +351,90 @@ const compileContract = () => {
   }
 };
 
+// Wrapper function to create smart contract
+const createSmartContract = async (orderIdOrData) => {
+  try {
+    // Check if orderIdOrData is a string (orderId) or an object (project data)
+    if (typeof orderIdOrData === "string" || orderIdOrData instanceof String) {
+      // It's an orderId, use the existing function
+      return await createBlockchainContract(orderIdOrData);
+    } else if (typeof orderIdOrData === "object") {
+      // It's project data, create an order first
+      const {
+        clientId,
+        freelancerId,
+        projectId,
+        amount,
+        projectTitle,
+        projectDescription,
+      } = orderIdOrData;
+
+      // Create a simulated order for this project
+      const OrderModel = require("../models/orderModel");
+      const ServiceModel = require("../models/serviceModel");
+
+      // Check if order already exists for this project
+      const existingOrder = await OrderModel.findOne({ projectId });
+      if (existingOrder) {
+        // Return the existing contract or create a new one
+        const existingContract = await ContractModel.findOne({
+          orderId: existingOrder._id,
+        });
+        if (existingContract) {
+          return {
+            success: true,
+            message: "Contract already exists for this project",
+            contract: existingContract,
+            contractId: existingContract._id,
+          };
+        }
+
+        // Create a contract using the existing order
+        return await createBlockchainContract(existingOrder._id);
+      }
+
+      // Find or create a service for this project
+      let service = await ServiceModel.findOne({ projectId });
+      if (!service) {
+        service = new ServiceModel({
+          userId: freelancerId,
+          title: projectTitle || "Project Service",
+          description: projectDescription || "Service created for project",
+          projectId,
+          price: amount,
+        });
+        await service.save();
+      }
+
+      // Create order
+      const order = new OrderModel({
+        clientId,
+        serviceId: service._id,
+        amount,
+        status: "OnGoing",
+        projectId,
+      });
+      await order.save();
+
+      // Create contract using the new order
+      const result = await createBlockchainContract(order._id);
+      if (result.success && result.contract) {
+        // Store the contract ID in a way ProjectController can access it
+        result.contractId = result.contract._id;
+      }
+      return result;
+    } else {
+      throw new Error("Invalid parameter for createSmartContract");
+    }
+  } catch (error) {
+    console.error("Error in createSmartContract:", error);
+    return {
+      success: false,
+      message: "Error creating contract: " + error.message,
+    };
+  }
+};
+
 // Create a new blockchain contract for an order
 const createBlockchainContract = async (orderId) => {
   try {
@@ -641,6 +725,47 @@ const cancelContract = async (orderId, userId, reason) => {
   }
 };
 
+// Wrapper function to activate smart contract
+const activateSmartContract = async (contractId) => {
+  // If we're passed a contract ID instead of an order ID,
+  // we need to find the contract first to get the order ID
+  try {
+    let orderId = contractId;
+    let userId;
+
+    // Check if the ID is a contract ID
+    const contract = await ContractModel.findById(contractId);
+    if (contract) {
+      // We have a contract ID, so use its orderId
+      orderId = contract.orderId;
+      // For activation, we need the freelancer ID
+      userId = contract.freelancerId;
+    } else {
+      // Try to find a contract with this order ID
+      const contractByOrder = await ContractModel.findOne({
+        orderId: contractId,
+      });
+      if (contractByOrder) {
+        userId = contractByOrder.freelancerId;
+      } else {
+        return {
+          success: false,
+          message: "Contract not found for the provided ID",
+        };
+      }
+    }
+
+    // Now activate using the orderId and userId
+    return await activateContract(orderId, userId);
+  } catch (error) {
+    console.error("Error in activateSmartContract:", error);
+    return {
+      success: false,
+      message: "Error activating contract: " + error.message,
+    };
+  }
+};
+
 // Activate a contract (freelancer accepts it)
 const activateContract = async (orderId, userId) => {
   try {
@@ -756,6 +881,41 @@ const activateContract = async (orderId, userId) => {
   }
 };
 
+// Get contract by ID or OrderID
+const getContractById = async (id) => {
+  try {
+    // Check if the provided ID is a valid MongoDB ObjectId
+    const isValidObjectId = id.match(/^[0-9a-fA-F]{24}$/);
+
+    if (!isValidObjectId) {
+      return { success: false, message: "Invalid contract ID format" };
+    }
+
+    // Try to find by contract ID first
+    let contract = await ContractModel.findById(id);
+
+    // If not found by ID, try to find by orderId
+    if (!contract) {
+      contract = await ContractModel.findOne({ orderId: id });
+    }
+
+    if (!contract) {
+      return { success: false, message: "Contract not found" };
+    }
+
+    return {
+      success: true,
+      contract: contract,
+    };
+  } catch (error) {
+    console.error("Error fetching contract:", error);
+    return {
+      success: false,
+      message: "Error fetching contract details: " + error.message,
+    };
+  }
+};
+
 // Get contract details
 const getContractDetails = async (orderId) => {
   try {
@@ -820,9 +980,12 @@ const getUserContracts = async (userId) => {
 
 module.exports = {
   createBlockchainContract,
+  createSmartContract,
   completeContract,
   cancelContract,
   activateContract,
   getContractDetails,
   getUserContracts,
+  getContractById,
+  activateSmartContract,
 };

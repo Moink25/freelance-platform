@@ -8,6 +8,7 @@ const ServiceModel = new Schema(
     price: Number,
     images: String,
     userId: Schema.Types.ObjectId,
+    projectId: { type: Schema.Types.ObjectId, default: null },
   },
   { timestamps: true }
 );

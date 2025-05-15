@@ -1,6 +1,12 @@
 import noImage from "../assets/Images/no-image.png";
 import { useEffect, useRef, useState } from "react";
-import { conversationMessages, setNewMessages } from "../Redux/ChatSlice";
+import "../components/Chat.css";
+import {
+  conversationMessages,
+  setNewMessages,
+  getChatSuggestion,
+  clearSuggestion,
+} from "../Redux/ChatSlice";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,11 +18,15 @@ export default function Message({ selectedMessage }) {
   const message = useRef();
   const chat = useRef();
   const { id } = useParams();
-  const { messages } = useSelector((state) => state.chat);
+  const { messages, suggestion, isLoadingSuggestion, suggestionError } =
+    useSelector((state) => state.chat);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const socket = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [typingTimeout, setTypingTimeout] = useState(null);
+  const [userTyping, setUserTyping] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     dispatch(conversationMessages(selectedMessage))
@@ -72,6 +82,110 @@ export default function Message({ selectedMessage }) {
     }
   }, [messages]);
 
+  // New effect to suggest messages based on conversation context
+  useEffect(() => {
+    // Only trigger suggestions when messages are loaded and there's at least one message
+    if (messages?.messages?.conversationMessages?.length > 0) {
+      // Get the last message that wasn't sent by the current user
+      const lastOtherUserMessage = [...messages.messages.conversationMessages]
+        .reverse()
+        .find((msg) => msg.senderId !== id);
+
+      if (lastOtherUserMessage) {
+        // Generate quick suggestions locally
+        const quickSuggestions = generateQuickSuggestions(
+          lastOtherUserMessage.text
+        );
+        setSuggestions(quickSuggestions);
+
+        // Also keep the AI suggestion flow for more complex suggestions
+        dispatch(
+          getChatSuggestion({
+            chatId: selectedMessage,
+            messageText: lastOtherUserMessage.text,
+          })
+        );
+      }
+    }
+  }, [selectedMessage, messages?.messages?.conversationMessages]);
+
+  // Generate 3 quick suggested responses based on the last message
+  const generateQuickSuggestions = (lastMessage) => {
+    const text = lastMessage.toLowerCase();
+    const suggestions = [];
+
+    // Project inquiries
+    if (
+      text.includes("project") ||
+      text.includes("work") ||
+      text.includes("job")
+    ) {
+      suggestions.push("I'm interested in your project");
+      suggestions.push("Could you share more details?");
+      suggestions.push("What's your timeline for this?");
+    }
+
+    // Payment or budget discussions
+    else if (
+      text.includes("payment") ||
+      text.includes("budget") ||
+      text.includes("cost")
+    ) {
+      suggestions.push("The budget works for me");
+      suggestions.push("Could we discuss the payment terms?");
+      suggestions.push("I'll send you a detailed proposal");
+    }
+
+    // Timeline questions
+    else if (
+      text.includes("when") ||
+      text.includes("timeline") ||
+      text.includes("deadline")
+    ) {
+      suggestions.push("I can deliver by next week");
+      suggestions.push("Let me check my availability");
+      suggestions.push("This timeline works for me");
+    }
+
+    // Portfolio inquiries
+    else if (
+      text.includes("portfolio") ||
+      text.includes("experience") ||
+      text.includes("previous")
+    ) {
+      suggestions.push("I'll share some examples");
+      suggestions.push("I've worked on similar projects");
+      suggestions.push("Check my portfolio link");
+    }
+
+    // Questions
+    else if (text.includes("?")) {
+      suggestions.push("Yes, that works for me");
+      suggestions.push("I need to think about this");
+      suggestions.push("Could you clarify that?");
+    }
+
+    // Greetings or short messages
+    else if (
+      text.length < 20 ||
+      text.includes("hello") ||
+      text.includes("hi")
+    ) {
+      suggestions.push("Hello! How can I help?");
+      suggestions.push("Great to connect with you");
+      suggestions.push("I'm interested in working with you");
+    }
+
+    // Default suggestions
+    else {
+      suggestions.push("Thanks for the information");
+      suggestions.push("I understand");
+      suggestions.push("Let's discuss this further");
+    }
+
+    return suggestions;
+  };
+
   const sendMessageAndDisplay = () => {
     if (message.current.value.trim() !== "") {
       const text = message.current.value.trim();
@@ -90,6 +204,8 @@ export default function Message({ selectedMessage }) {
               .then((data) => {
                 if (data.status === 200) {
                   message.current.value = "";
+                  dispatch(clearSuggestion());
+                  setUserTyping(false);
                   const newMessage = chat.current.lastElementChild;
                   if (newMessage) {
                     newMessage.scrollIntoView({ behavior: "smooth" });
@@ -126,6 +242,59 @@ export default function Message({ selectedMessage }) {
       e.preventDefault();
       sendMessageAndDisplay();
     }
+  };
+
+  const handleInputChange = (e) => {
+    const text = e.target.value;
+    setUserTyping(text.length > 0);
+
+    // Clear existing timeout
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
+    // If input is empty, clear AI suggestions but keep quick suggestions visible
+    if (!text.trim()) {
+      dispatch(clearSuggestion());
+      // Make sure quick suggestions are visible when text field is empty
+      if (messages?.messages?.conversationMessages?.length > 0) {
+        const lastOtherUserMessage = [...messages.messages.conversationMessages]
+          .reverse()
+          .find((msg) => msg.senderId !== id);
+
+        if (lastOtherUserMessage) {
+          const quickSuggestions = generateQuickSuggestions(
+            lastOtherUserMessage.text
+          );
+          setSuggestions(quickSuggestions);
+        }
+      }
+      return;
+    }
+    // Don't hide suggestions when typing - keep them visible
+    // setSuggestions([]); - removing this line
+
+    // Get AI suggestions after a short delay of typing pause
+    const newTimeout = setTimeout(() => {
+      if (text.trim() && text.trim().length >= 2) {
+        dispatch(
+          getChatSuggestion({
+            chatId: selectedMessage,
+            messageText: text.trim(),
+          })
+        );
+      }
+    }, 500); // Reduced from 1000ms to 500ms
+
+    setTypingTimeout(newTimeout);
+  };
+
+  const applySuggestion = (text) => {
+    message.current.value = text;
+    // Focus the input field instead of immediately sending
+    message.current.focus();
+    // Clear the suggestions
+    setSuggestions([]);
   };
 
   return (
@@ -171,6 +340,57 @@ export default function Message({ selectedMessage }) {
       )}
 
       <hr />
+
+      {/* Quick Reply Suggestions (Gmail style) */}
+      {suggestions.length > 0 && (
+        <div className="quickSuggestionsContainer">
+          {suggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              className="quickSuggestionButton"
+              onClick={() => applySuggestion(suggestion)}
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* AI Suggestion Display - Keep but make it appear only when specifically requested */}
+      {suggestion && userTyping && (
+        <div className="aiSuggestionBox">
+          <div className="aiSuggestionHeader">
+            <span>✨ AI Suggestion</span>
+            <button onClick={() => applySuggestion(suggestion)}>
+              Use this
+            </button>
+          </div>
+          <div className="aiSuggestionContent">{suggestion}</div>
+        </div>
+      )}
+
+      {isLoadingSuggestion && (
+        <div className="aiSuggestionBox loading">
+          <div className="aiSuggestionHeader">
+            <span>AI is thinking...</span>
+            <div className="suggestionLoader">
+              <div className="dot"></div>
+              <div className="dot"></div>
+              <div className="dot"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {suggestionError && (
+        <div className="aiSuggestionBox error">
+          <div className="aiSuggestionHeader">
+            <span>AI Error: {suggestionError}</span>
+            <button onClick={() => dispatch(clearSuggestion())}>Dismiss</button>
+          </div>
+        </div>
+      )}
+
       <div className="sendBox">
         <div className="inputbox">
           <div className="svg">
@@ -194,6 +414,7 @@ export default function Message({ selectedMessage }) {
             id="sendMessage"
             placeholder="Write your message here..."
             onKeyPress={handleKeyPress}
+            onChange={handleInputChange}
           ></textarea>
         </div>
         <button onClick={sendMessageAndDisplay}>

@@ -13,6 +13,7 @@ const OrderModel = new Schema(
     },
     amount: { type: Number, default: 0 },
     transactionId: { type: Schema.Types.ObjectId, default: null },
+    projectId: { type: Schema.Types.ObjectId, default: null },
   },
   { timestamps: true }
 );

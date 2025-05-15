@@ -8,6 +8,7 @@ import { RiFileUserLine } from "react-icons/ri";
 import { FiShoppingCart } from "react-icons/fi";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { BiChat } from "react-icons/bi";
+import { BsFileEarmarkText } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
@@ -37,6 +38,12 @@ export default function ClientMenu({ active }) {
           <li className={active === "freelancers" ? "active" : ""}>
             <RiFileUserLine className="navIcons" />
             <span>Find Services</span>
+          </li>
+        </Link>
+        <Link to={`/client/${id}/projects`}>
+          <li className={active === "projects" ? "active" : ""}>
+            <BsFileEarmarkText className="navIcons" />
+            <span>Projects</span>
           </li>
         </Link>
         <Link to={`/dashboard/client/${id}/orders`}>

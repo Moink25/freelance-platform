@@ -1,14 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userSlice from "./UserSlice";
-import freelancerSlice from "./FreelancerSlice";
-import clientSlice from "./ClientSlice";
-import chatSlice from "./ChatSlice";
+import UserSlice from "./UserSlice";
+import FreelancerSlice from "./FreelancerSlice";
+import ClientSlice from "./ClientSlice";
+import ChatSlice from "./ChatSlice";
+import ProjectSlice from "./ProjectSlice";
+import NotificationSlice from "./NotificationSlice";
 
 export const store = configureStore({
   reducer: {
-    user: userSlice,
-    freelancer: freelancerSlice,
-    client: clientSlice,
-    chat: chatSlice,
+    user: UserSlice,
+    freelancer: FreelancerSlice,
+    client: ClientSlice,
+    chat: ChatSlice,
+    project: ProjectSlice,
+    notification: NotificationSlice,
   },
 });

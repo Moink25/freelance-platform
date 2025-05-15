@@ -1,7 +1,30 @@
 const express = require("express");
-const router = express.Router();
-const contractController = require("../controllers/ContractController");
+const jwt = require("jsonwebtoken");
+const {
+  createSmartContract,
+  activateSmartContract,
+  completeSmartContract,
+  getContractById,
+  getUserContracts,
+} = require("../controllers/ContractController");
 const verifyToken = require("../middleware/Auth");
+
+const router = express.Router();
+
+// Verify JWT token middleware
+const verifyTokenMiddleware = (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.SECRET);
+    req.userData = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      status: 401,
+      msg: "Authentication Failed",
+    });
+  }
+};
 
 // Simple health check endpoint that doesn't require authentication
 router.get("/status", (req, res) => {
@@ -15,104 +38,125 @@ router.get("/status", (req, res) => {
 // Apply token verification middleware to all protected contract routes
 router.use(verifyToken);
 
-// Create a new blockchain contract for an order
-router.post("/create/:orderId", async (req, res) => {
-  try {
-    const result = await contractController.createBlockchainContract(
-      req.params.orderId
-    );
-    if (result.success) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// Complete a contract (client marks work as complete)
-router.post("/complete/:orderId", async (req, res) => {
-  try {
-    const result = await contractController.completeContract(
-      req.params.orderId,
-      req.userId
-    );
-    if (result.success) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// Cancel a contract
-router.post("/cancel/:orderId", async (req, res) => {
-  try {
-    const reason = req.body.reason || "No reason provided";
-    const result = await contractController.cancelContract(
-      req.params.orderId,
-      req.userId,
-      reason
-    );
-    if (result.success) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// Activate a contract (freelancer accepts it)
-router.post("/activate/:orderId", async (req, res) => {
-  try {
-    const result = await contractController.activateContract(
-      req.params.orderId,
-      req.userId
-    );
-    if (result.success) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-// Get details of a specific contract
-router.get("/:orderId", async (req, res) => {
-  try {
-    const result = await contractController.getContractDetails(
-      req.params.orderId
-    );
-    if (result.success) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(404).json(result);
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
 // Get all contracts for the current user
 router.get("/", async (req, res) => {
   try {
-    const result = await contractController.getUserContracts(req.userId);
+    const result = await getUserContracts(req.userId);
     return res.status(200).json(result);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Create a new smart contract
+router.post("/create", async (req, res) => {
+  try {
+    // Check if orderId is provided in the request body
+    if (!req.body.orderId) {
+      return res.status(400).json({
+        status: 400,
+        msg: "Order ID is required",
+      });
+    }
+
+    const result = await createSmartContract(req.body.orderId);
+
+    if (result.success) {
+      res.status(201).json({
+        status: 201,
+        data: result.contract,
+        success: true,
+        msg: "Smart contract created successfully",
+      });
+    } else {
+      res.status(400).json({
+        status: 400,
+        success: false,
+        ...result,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      msg: error.message,
+    });
+  }
+});
+
+// Activate a smart contract
+router.post("/activate/:contractId", async (req, res) => {
+  try {
+    const result = await activateSmartContract(req.params.contractId);
+
+    if (result.success) {
+      res.status(200).json({
+        status: 200,
+        success: true,
+        data: result.contract,
+        msg: "Smart contract activated successfully",
+      });
+    } else {
+      res.status(400).json({
+        status: 400,
+        success: false,
+        message: result.message || "Failed to activate contract",
+        ...result,
+      });
+    }
+  } catch (error) {
+    console.error("Error in contract activation route:", error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      msg: error.message,
+    });
+  }
+});
+
+// Complete a smart contract
+router.post("/complete/:contractId", async (req, res) => {
+  try {
+    const result = await completeSmartContract(req.params.contractId);
+    res.status(200).json({
+      status: 200,
+      data: result,
+      msg: "Smart contract completed successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      msg: error.message,
+    });
+  }
+});
+
+// Get contract details
+router.get("/:contractId", async (req, res) => {
+  try {
+    const result = await getContractById(req.params.contractId);
+
+    if (result.success) {
+      res.status(200).json({
+        status: 200,
+        success: true,
+        contract: result.contract,
+        msg: "Contract details retrieved successfully",
+      });
+    } else {
+      res.status(404).json({
+        status: 404,
+        success: false,
+        message: result.message || "Contract not found",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      msg: error.message,
+    });
   }
 });
 
