@@ -34,12 +34,13 @@ route.get("/dashboard", VerifyToken, async (req, res) => {
 route.get("/myServices", VerifyToken, async (req, res) => {
   try {
     const allServices = await findUserServices(req.userId);
-    if (allServices) {
-      return res.json({ allServices, status: 200 });
+    if (allServices !== null) {
+      return res.json({ allServices: allServices || [], status: 200 });
     }
-    return res.json({ msg: "User Doesn't Exists", status: 404 });
+    return res.json({ msg: "User Doesn't Exist", status: 404 });
   } catch (error) {
-    return res.json({ status: 505, msg: "Error Occured: " + error.message });
+    console.error("Error in myServices route:", error);
+    return res.json({ status: 505, msg: "Error Occurred: " + error.message });
   }
 });
 

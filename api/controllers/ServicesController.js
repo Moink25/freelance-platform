@@ -8,13 +8,31 @@ const findUserServices = async (userId) => {
   if (user) {
     const services = await Service.find({ userId }).sort({ updatedAt: -1 });
     let servicesInfos = [];
+
     for (let i of services) {
-      const rating = await getServiceRating(i._id.toString());
-      servicesInfos.push({ ...i._doc, serviceRating: rating });
+      try {
+        const rating = await getServiceRating(i._id.toString());
+
+        // Ensure images field is properly formatted
+        let images = i.images;
+        if (!images) {
+          images = "no-image.png";
+        }
+
+        servicesInfos.push({
+          ...i._doc,
+          images,
+          serviceRating: rating || 0,
+        });
+      } catch (error) {
+        console.error("Error processing service:", error);
+        // Skip this service if there's an error
+      }
     }
+
     return servicesInfos;
   }
-  return null;
+  return [];
 };
 
 const findUsersServices = async () => {

@@ -33,21 +33,35 @@ export default function FreelancerServices() {
       .unwrap()
       .then((data) => {
         console.log("Freelancer services data:", data); // Debug log
+        if (data?.allServices) {
+          console.log("First service example:", data.allServices[0]);
+        }
+
         setTimeout(() => {
           setLoading(false);
           if (data.status === 404 || data.status === 403) {
             toast.error(data.msg);
             navigate("/login");
+          } else if (!data.allServices || !Array.isArray(data.allServices)) {
+            console.error("Invalid services data format:", data);
+            toast.error("Could not load services data properly");
           }
         }, 1000);
       })
       .catch((rejectedValueOrSerializedError) => {
+        console.error(
+          "Error fetching services:",
+          rejectedValueOrSerializedError
+        );
         setTimeout(() => {
           setLoading(false);
-          toast.error(rejectedValueOrSerializedError);
+          toast.error(
+            rejectedValueOrSerializedError ||
+              "Failed to load services. Please try again."
+          );
         }, 1000);
       });
-  }, []);
+  }, [dispatch, navigate]);
 
   return (
     <>
@@ -76,12 +90,22 @@ export default function FreelancerServices() {
                 data.allServices.map((service) => (
                   <div key={service._id} className="service">
                     <div className="slider">
-                      <Slider images={service.images.split("|")} />
+                      {service.images ? (
+                        <Slider
+                          images={
+                            typeof service.images === "string"
+                              ? service.images.split("|")
+                              : []
+                          }
+                        />
+                      ) : (
+                        <img src={noImage} alt="Service" />
+                      )}
                     </div>
                     <div className="serviceHeader">
                       <img
                         src={
-                          avatar === "no-image.png"
+                          !avatar || avatar === "no-image.png"
                             ? noImage
                             : `http://localhost:3001/ProfilePic/${avatar}`
                         }
@@ -94,14 +118,18 @@ export default function FreelancerServices() {
                     </div>
                     <div className="serviceBody">
                       <p className="serviceTitle">
-                        {service.title.length > 19
-                          ? `${service.title.slice(0, 19)}...`
-                          : service.title}
+                        {service.title
+                          ? service.title.length > 19
+                            ? `${service.title.slice(0, 19)}...`
+                            : service.title
+                          : "Untitled Service"}
                       </p>
                       <p className="serviceDescription">
-                        {service.description.length > 100
-                          ? `${service.description.slice(0, 100)}...`
-                          : service.description}
+                        {service.description
+                          ? service.description.length > 100
+                            ? `${service.description.slice(0, 100)}...`
+                            : service.description
+                          : "No description available"}
                       </p>
                       <div className="rating-more">
                         <div className="rating">
@@ -112,7 +140,8 @@ export default function FreelancerServices() {
                             <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
                           </svg>
                           <span>
-                            {service.serviceRating != 0
+                            {service.serviceRating != null &&
+                            service.serviceRating !== 0
                               ? service.serviceRating
                               : "Not Rated"}
                           </span>
@@ -125,7 +154,9 @@ export default function FreelancerServices() {
                       </div>
                     </div>
                     <hr />
-                    <div className="servicePrice">Price: {service.price} ₹</div>
+                    <div className="servicePrice">
+                      Price: {service.price || 0} ₹
+                    </div>
                   </div>
                 ))
               ) : (
