@@ -21,9 +21,30 @@ const findUsersServices = async () => {
   const services = await findServices();
   let servicesRatingAndUser = [];
   for (let i of services) {
-    const rating = await getServiceRating(i._id.toString());
-    const userInfo = await findUserById(i.userId);
-    servicesRatingAndUser.push({ ...i._doc, serviceRating: rating, userInfo });
+    try {
+      const rating = await getServiceRating(i._id.toString());
+      const userInfo = await findUserById(i.userId);
+
+      // Ensure images field is properly formatted
+      let images = i.images;
+      if (!images) {
+        images = "no-image.png";
+      }
+
+      servicesRatingAndUser.push({
+        ...i._doc,
+        images,
+        serviceRating: rating || 0,
+        userInfo: userInfo || {
+          name: "Unknown User",
+          username: "Unknown User",
+          image: "no-image.png",
+        },
+      });
+    } catch (error) {
+      console.error("Error processing service:", error);
+      // Skip this service if there's an error
+    }
   }
   return servicesRatingAndUser;
 };

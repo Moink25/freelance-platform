@@ -34,7 +34,7 @@ export default function ClientMenu({ active }) {
             <span>Dashboard</span>
           </li>
         </Link>
-        <Link to={`/dashboard/client/${id}/freelancers`}>
+        <Link to={`/client/${id}/freelancers`}>
           <li className={active === "freelancers" ? "active" : ""}>
             <RiFileUserLine className="navIcons" />
             <span>Find Services</span>

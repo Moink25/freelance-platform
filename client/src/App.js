@@ -147,6 +147,14 @@ function App() {
             path="/client/:id/project/:projectId"
             element={<ClientProjectDetails />}
           />
+          <Route
+            path="/client/:id/services/show/:serviceId"
+            element={<ServiceDetails type="2" />}
+          />
+          <Route
+            path="/client/:id/freelancers"
+            element={<ClientFreelancers />}
+          />
 
           <Route path="*" element={<PageNotFound />} />
         </Routes>
